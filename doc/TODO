@@ -1,0 +1,182 @@
+====
+TODO
+====
+
+Make a tmpfs on /tmp
+make /var/tmp on in rc.sysinit
+use tcpsvd for ftpd or inetd?
+
+
+=====================
+Batch of Random Notes
+=====================
+
+bblinux:
+
+# /usr/bin/getconf 
+/usr/bin/getconf: symbol 'program_invocation_short_name': can't resolve symbol
+
+missing /bin/{lua,luac} /usr/lib/{liblua.so,liblua.so.5.1.5} /usr/share/lua/*
+
+/bin/busybox ..................  ~5K bigger than dimitry's
+/lib/ld-uClibc-0.9.33.2.so ....  ~4K bigger than dimitry's
+/lib/libcrypt-0.9.33.2.so .....  ~1K bigger than dimitry's
+/lib/libgcc_s.so.1 ............ ~81K smaller than dimitry's (no c++ ?)
+/lib/libnsl-0.9.33.2.so ....... ~.8K bigger than dimitry's
+/lib/libpthread-0.9.33.2.so ...  ~1K bigger than dimitry's
+/lib/libresolv-0.9.33.2.so .... ~.8K bigger than dimitry's
+/lib/libuClibc-0.9.33.2.so .... ~19K bigger than dimitry's
+/lib/libutil-0.9.33.2.so ...... ~.8K bigger than dimitry's
+
+/usr/lib/libncurses.so.5.9 .... ~111K bigger than dimitry's (wtf!)
+
+/usr/sbin/dropbear ............ ~173K bigger than dimitry's (wtf!)
+
+# -----------------------------------------------------------------------------
+
+Mike Wade's WiFiSD (dkrause's buildroot i think):
+
+# /bin/busybox 
+BusyBox v1.21.1 (2013-10-19 14:51:36 CDT) multi-call binary.
+(where are the patches?)
+
+# cat /proc/cmdline
+root=/dev/ram0 rw console=ttyS0,38400n8 mem=32M initrd=0x500000,3M
+
+# uname -a
+Linux buildroot 2.6.32.28-g74ef2a4-dirty #25 PREEMPT Sun Aug 18 17:40:14 PDT 2013 armv5tejl GNU/Linux
+
+# cat cpuinfo
+Processor       : ARM926EJ-S rev 5 (v5l)
+BogoMIPS        : 50.68
+Features        : swp half fastmult edsp java 
+CPU implementer : 0x41
+CPU architecture: 5TEJ
+CPU variant     : 0x0
+CPU part        : 0x926
+CPU revision    : 5
+Hardware        : KeyASIC Ka2000 EVM
+Revision        : 0000
+Serial          : 0000000000000000
+
+# fstab:
+/dev/mtdblock0  /mnt/mtd    jffs2   0                                 0      0
+/mnt/mtd/etc    /etc        bind    defaults,bind                     0      0
+
+# -----------------------------------------------------------------------------
+
+WiFiSD_v1.8::Firmware_V1.8:
+
+Product Name     : KeyASIC WIFI-SD
+Firmware Version : V150
+Build Date       : 17 APR 2013
+Revision         : V150
+WiFi Model       : Atheros AR6003 11n
+Linux Kernel     : 2.6.32.28
+Busybox          : 1.18.5
+
+$ l WiFiSD_v1.8/Firmware_V1.8/sysroot/lib/                     
+total 1.2M
+-rwxr-xr-x 1 djerome djerome 351K Mar 10 19:40 ar6000.ko*
+drwxr-xr-x 3 djerome djerome 4.0K Mar 10 19:40 ath6k/
+-rwxr-xr-x 1 djerome djerome 7.7K Mar 10 19:40 gpio_i2c.ko*
+-rwxr--r-- 1 djerome djerome  80K Mar 10 19:40 ka2000-sdhc.ko*
+-rwxr-xr-x 1 djerome djerome  13K Mar 10 19:40 ka2000-sdio.ko*
+
+# -----------------------------------------------------------------------------
+
+
+ARM926EJ-S revision 5 (v5l)  [ARMv5TEJ]
+
+Processor        : ARM926EJ-S revision 5 (v5l)
+CPU architecture : 5TEJ
+Hardware         : KeyASIC a2000 EVM
+
+Linux version 2.6.32.28-g74ef2a4-dirty
+     gcc version 4.7.3 20121207 (release)
+
+# -----------------------------------------------------------------------------
+
+$ cat /proc/cpuinfo
+Processor : ARM926EJ-S rev 5 (v5l)
+BogoMIPS : 421.06
+Features : swp half fastmult edsp java
+CPU implementer : 0x41
+CPU architecture: 5TEJ
+CPU variant : 0x0
+CPU part : 0x926
+CPU revision : 5
+
+Hardware : KeyASIC Ka2000 EVM
+Revision : 0000
+Serial : 0000000000000000
+
+$ uname -a
+Linux (none) 2.6.32.28 #130 PREEMPT Mon Feb 18 13:54:18 CST 2013 armv5tejl GNU/Linux
+
+$ cat /proc/mtd
+dev: size erasesize name
+mtd0: 00100000 00010000 "SPI NOR Flash Partition1"
+mtd1: 00300000 00010000 "SPI: kernel"
+mtd2: 00300000 00010000 "Ramdisk"
+
+# -----------------------------------------------------------------------------
+
+KA Boot 04240806
+scu: 11c33303,00000000,00040404,00009f00,1
+Status 20200800
+
+Hit to stop :  2## 0
+KA2000#000000# ## ## ## ## ## #
+KA2000#help
+?       - alias for 'help'
+base    - print or set address offset
+bdinfo  - print Board Info structure
+ .
+ .
+ .
+U-Boot 2010.06-rc1 (Jun 22 2012 - 14:34:53) on KeyAsic KA2000
+KA2000#
+
+# -----------------------------------------------------------------------------
+
+BR2_DEFAULT_KERNEL_VERSION="2.6.32.26"
+BR2_ROOTFS_DEVICE_TABLE="board/wifisd/device_table.txt"
+BR2_ROOTFS_STATIC_DEVICE_TABLE="board/wifisd/device_table_dev.txt"
+BR2_ROOTFS_OVERLAY="board/wifisd/fs-overlay"
+BR2_ROOTFS_POST_BUILD_SCRIPT="board/wifisd/post-build.sh"
+BR2_ROOTFS_POST_IMAGE_SCRIPT="board/wifisd/post-image.sh"
+BR2_PACKAGE_BUSYBOX_CONFIG="board/wifisd/busybox-1.21.1.config"
+
+# -----------------------------------------------------------------------------
+
+Fortune AF-N-31GL Wi-Fi SiP Module
+chip: Atheros AR6003G (802.11bgn) 
+SoC RAM 32MB
+SoC NOR Flash 8MB
+Storage Flasf 16/32GB
+
+# -----------------------------------------------------------------------------
+
+KeyASIC SPG101 System-in-Package (SIP) [1] EVM manual, containing:
+        32-bit ARM926EJ-S controller
+        32MB DRAM
+        8MB NOR Flash
+Fortune AF-N-31GL Wi-Fi SiP Module [2], containing:
+        Atheros AR6003G (802.11bgn WiSoC) (Xtensa 32-bit CPU, 256kB RAM, 256kB ROM)
+SiliconMotion SM2683EN Flash card controller [3] (8051-controller, RAM, ROM)
+16GB NAND chip
+
+# -----------------------------------------------------------------------------
+
+http://dmitry.gr/index.php?r=05.Projects&proj=15.%20Transcend%20WiFiSD
+http://haxit.blogspot.com/2013/08/hacking-transcend-wifi-sd-cards.html
+http://linuxaria.com/howto/linux-terminal-speedtest_cli-checks-your-real-bandwidth-speed
+https://forum.openwrt.org/viewtopic.php?id=45820
+https://forum.openwrt.org/viewtopic.php?id=45820&p=5
+https://forum.openwrt.org/viewtopic.php?pid=213087#p213087
+https://github.com/dankrause/kcard-buildroot
+https://jamesone111.wordpress.com/2014/03/19/exploring-the-transcend-wifi-sd-card/
+https://wikidevi.com/wiki/List_of_Wi-Fi_Flash_SD_Cards
+https://wikidevi.com/wiki/Transcend_Wi-Fi_SD_Card_16GB
+https://www.pitt-pladdy.com/blog/_20140202-083815_0000_Transcend_Wi-Fi_SD_Hacks_CF_adaptor_telnet_custom_upload_/

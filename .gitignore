@@ -1,0 +1,36 @@
+# temporary files
+*~
+*.[oa]
+*.swp
+
+# setup and configuration
+bblinux-chroot.sh
+bblinux-config.sh
+bblinux-pkglst.txt
+bblinux-setenv.sh
+
+# bblinux build state
+build/bld/[^.]*
+build/log/[^.]*
+build/run/[^.]*
+build/var/[^.]*
+
+# downloads
+dload/[^.]*
+
+# root fs making
+mnt/[^.]*
+
+# root fs staging area
+sysroot/[^.]*
+
+# build products
+target/image/[^.]*
+target/kpkgs/[^.]*
+target/kroot/[^.]*
+target/loader/[^.]*
+target/pkgbin/[^.]*
+
+# cross-tool chains
+x-tools/[^.]*
+

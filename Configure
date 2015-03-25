@@ -1,0 +1,176 @@
+#!/bin/bash
+
+# The license which this software falls under is GPLv2 as follows:
+#
+# Copyright (C) 2015-2015 Big Palooka <bpalooka@palooka.org>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+
+# *************************************************************************** #
+#                                                                             #
+# S U B R O U T I N E S                                                       #
+#                                                                             #
+# *************************************************************************** #
+
+# *****************************************************************************
+# xbt_path_search
+# *****************************************************************************
+
+# Usage: xbt_path_search <program name>
+
+xbt_path_search() {
+	local prog=""
+	local p
+	for p in ${PATH//:/ }; do
+		[[ -x "${p}/$1" ]] && prog="${p}/$1"
+	done
+	echo ${prog}
+}
+
+# *************************************************************************** #
+#                                                                             #
+# M A I N   P R O G R A M                                                     #
+#                                                                             #
+# *************************************************************************** #
+
+# *****************************************************************************
+# Setup Constants and Environment
+# *****************************************************************************
+
+SETENV_FILE="./bblinux-setenv.sh"
+
+_TB=$'\t'
+_NL=$'\n'
+_SP=$' '
+
+export IFS="${_SP}${_TB}${_NL}"
+export LC_ALL=POSIX
+export PATH=/bin:/usr/bin:/usr/sbin
+
+unset _TB
+unset _NL
+unset _SP
+
+set -o errexit ; # Exit immediately if a command exits with a non-zero status.
+set -o nounset ; # Treat unset variables as an error when substituting.
+
+umask 022
+
+# *****************************************************************************
+# Check Host Configuration
+# *****************************************************************************
+
+# Host MACHTYPE
+#
+set +o nounset
+if [[ -z "${MACHTYPE}" ]]; then
+	echo "E> Environment variable MACHTYPE is not set."
+	echo "E> MACHTYPE is a GNU configuration name."
+	echo "E> Building bblinux needs a proper MACHTYPE."
+	echo "ref: http://sources.redhat.com/autobook/autobook/autobook_17.html"
+	exit 1
+fi
+set -o nounset
+echo "i> MACHTYPE: ${MACHTYPE}"
+
+# Check the key file, ".bblinux".
+#
+set +o errexit
+checksum=$(md5sum .bblinux 2>/dev/null)
+set -o errexit
+if [[ -z "${checksum}" ]]; then
+	echo "E> Make sure you are in the bblinux top-level directory."
+	echo "E> If you are then check your system for md5sum."
+	exit 1
+fi
+if [[ ${checksum%% *} != ce90a5f32052ebbcd3b20b315556e154 ]]; then
+	echo "E> Make sure you are in the bblinux top-level directory."
+	echo "E> If you are, something is wrong with bblinux; replace it."
+	exit 1
+fi
+unset checksum
+
+# Check for awk.
+#
+awkProg=""
+gawkProg=0
+mawkProg=0
+for p in ${PATH//:/ }; do
+	[[ -x "${p}/gawk" ]] && gawkProg=1
+	[[ -x "${p}/mawk" ]] && mawkProg=1
+	[[ -L "${p}/awk"  ]] && awkProg=$(readlink "${p}/awk") && break
+done
+[[ ${mawkProg} = 1 ]] && {
+	echo "i> Found mawk: a tool chain build is likely to NOT work."
+}
+if [[ -n "${awkProg}" ]]; then
+	[[ ${awkProg} = "mawk" ]] && {
+		echo "E> $(which awk) -> mawk"
+		echo "E> Your system cannot build a GNU tool chain."
+		echo "E> Remove mawk. Install gawk."
+		exit 1
+	}
+fi
+unset awkProg
+unset gawkProg
+unset mawkProg
+
+# *****************************************************************************
+# Create the bblinux environment setup file.
+# *****************************************************************************
+
+echo "i> Setting up cross build configuration in \"${SETENV_FILE}\"."
+
+ncpus=$(grep "^processor" /proc/cpuinfo | wc -l)
+
+rm -f "${SETENV_FILE}"
+>"${SETENV_FILE}"
+echo "# vim: syntax=sh"                                       >>"${SETENV_FILE}"
+echo ""                                                       >>"${SETENV_FILE}"
+echo "# bblinux Site Configuration Parameters"                >>"${SETENV_FILE}"
+echo "# Setup on $(date)"                                     >>"${SETENV_FILE}"
+echo ""                                                       >>"${SETENV_FILE}"
+echo "# Directories"                                          >>"${SETENV_FILE}"
+echo "export BBLINUX_CACHE_DIR=\"\${HOME}/Downloads\""        >>"${SETENV_FILE}"
+echo "export BBLINUX_DIR=\"$(pwd)\""                          >>"${SETENV_FILE}"
+echo "export BBLINUX_BOARDS_DIR=\"\${BBLINUX_DIR}/boards\""   >>"${SETENV_FILE}"
+echo "export BBLINUX_BUILD_DIR=\"\${BBLINUX_DIR}/build\""     >>"${SETENV_FILE}"
+echo "export BBLINUX_CONFIG_DIR=\"\${BBLINUX_DIR}/config\""   >>"${SETENV_FILE}"
+echo "export BBLINUX_DLOAD_DIR=\"\${BBLINUX_DIR}/dload\""     >>"${SETENV_FILE}"
+echo "export BBLINUX_DOC_DIR=\"\${BBLINUX_DIR}/doc\""         >>"${SETENV_FILE}"
+echo "export BBLINUX_MNT_DIR=\"\${BBLINUX_DIR}/mnt\""         >>"${SETENV_FILE}"
+echo "export BBLINUX_SCRIPTS_DIR=\"\${BBLINUX_DIR}/scripts\"" >>"${SETENV_FILE}"
+echo "export BBLINUX_SYSROOT_DIR=\"\${BBLINUX_DIR}/sysroot\"" >>"${SETENV_FILE}"
+echo "export BBLINUX_TARGET_DIR=\"\${BBLINUX_DIR}/target\""   >>"${SETENV_FILE}"
+echo "export BBLINUX_XTOOLS_DIR=\"\${BBLINUX_DIR}/x-tools\""  >>"${SETENV_FILE}"
+echo ""                                                       >>"${SETENV_FILE}"
+echo "# Build Variables"                                      >>"${SETENV_FILE}"
+echo "export BBLINUX_BUILD=\"${MACHTYPE}\""                   >>"${SETENV_FILE}"
+echo "export BBLINUX_HOST=\"${MACHTYPE}\""                    >>"${SETENV_FILE}"
+echo "export ncpus=${ncpus}"                                  >>"${SETENV_FILE}"
+echo ""                                                       >>"${SETENV_FILE}"
+echo "# end of file"                                          >>"${SETENV_FILE}"
+
+unset ncpus
+
+# *****************************************************************************
+# Exit OK
+# *****************************************************************************
+
+unset SETENV_FILE
+echo "Setup all done."
+exit 0
+
+# end of file

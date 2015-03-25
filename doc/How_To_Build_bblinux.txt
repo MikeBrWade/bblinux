@@ -1,0 +1,27 @@
+How to Build bblinux
+This file is woefully lacking in information.
+
+
+In the top-level bblinux directory, try "make help".
+
+Now give these commands:
+
+     $ ./Configure
+
+     $ make getcfg  # select option '1'
+     $ make xtools  # go make a ham sandwich; this will take a while
+     $ make pkglist # a formality; it would happen as needed
+     $ make dload   # get the needed source packages
+
+     $ sudo make pkgs    # may need your password
+     or
+     $ su -c 'make pkgs' # needs root password
+
+     $ sudo make fsys    # may need your password
+     or
+     $ su -c 'make fsys' # needs root password
+
+Now look in target/image/ and you will find the magic root file system image.
+
+
+[eof]

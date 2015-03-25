@@ -1,0 +1,29 @@
+BBLINUX_SAVED_OLD_MAKEFLAGS=""
+BBLINUX_SAVED_OLD_MAKE=""
+if [[ -n "${MAKEFLAGS:-}" ]]; then
+	BBLINUX_SAVED_OLD_MAKEFLAGS=${MAKEFLAGS}
+fi
+if [[ -n "${MAKE:-}" ]]; then
+	BBLINUX_SAVED_OLD_MAKE=${MAKE}
+fi
+
+export ARFLAGS=""
+export ASFLAGS=""
+export CFLAGS=""
+export CPPFLAGS=""
+export CXXFLAGS=""
+export LDFLAGS=""
+export MAKEFLAGS=""
+
+export AR=""
+export AS=""
+export CC=""
+export CPP=""
+export CXX=""
+export LD=""
+export MAKE="make ${MAKEFLAGS}"
+export NM=""
+export OBJCOPY=""
+export RANLIB=""
+export SIZE=""
+export STRIP=""
