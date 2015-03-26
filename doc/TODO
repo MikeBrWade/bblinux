@@ -2,14 +2,17 @@
 TODO
 ====
 
-Make a tmpfs on /tmp
-make /var/tmp on in rc.sysinit
-use tcpsvd for ftpd or inetd?
+use inetd or tcpsvd for ftpd?
+parameterize, such that an sdcard-resident script can specify:
+     => httpd home directory
+     => wpa supplicant usage, list of ap to try
 
 
 =====================
 Batch of Random Notes
 =====================
+
+# -----------------------------------------------------------------------------
 
 bblinux:
 
@@ -18,19 +21,33 @@ bblinux:
 
 missing /bin/{lua,luac} /usr/lib/{liblua.so,liblua.so.5.1.5} /usr/share/lua/*
 
-/bin/busybox ..................  ~5K bigger than dimitry's
-/lib/ld-uClibc-0.9.33.2.so ....  ~4K bigger than dimitry's
-/lib/libcrypt-0.9.33.2.so .....  ~1K bigger than dimitry's
-/lib/libgcc_s.so.1 ............ ~81K smaller than dimitry's (no c++ ?)
-/lib/libnsl-0.9.33.2.so ....... ~.8K bigger than dimitry's
-/lib/libpthread-0.9.33.2.so ...  ~1K bigger than dimitry's
-/lib/libresolv-0.9.33.2.so .... ~.8K bigger than dimitry's
-/lib/libuClibc-0.9.33.2.so .... ~19K bigger than dimitry's
-/lib/libutil-0.9.33.2.so ...... ~.8K bigger than dimitry's
+# l /bin
+-rwxr-xr-x    1 root     root      638.6K Mar 26  2015 busybox*
+-rwxr-xr-x    1 root     root      250.6K Mar 26  2015 wpa_supplicant*
+# l /sbin
+-rwxr-xr-x    1 root     root       60.9K Mar 26  2015 iwconfig*
+-rwxr-xr-x    1 root     root       11.7K Mar 26  2015 ldconfig*
+# l /usr/bin
+-rwxr-xr-x    6 root     root      266.4K Mar 26  2015 dropbearmulti*
+-rwxr-xr-x    1 root     root       10.8K Mar 26  2015 dtach*
+-rwxr-xr-x    1 root     root       14.1K Mar 26  2015 getconf*
+-rwxr-xr-x    1 root     root        6.4K Mar 26  2015 ldd*
+-rwxr-xr-x    1 root     root      318.4K Mar 26  2015 rsync*
 
-/usr/lib/libncurses.so.5.9 .... ~111K bigger than dimitry's (wtf!)
-
-/usr/sbin/dropbear ............ ~173K bigger than dimitry's (wtf!)
+# l /lib
+-rwxrwxr-x    1 user     user       28.8K Mar 26  2015 ld-uClibc-0.9.33.2.so*
+-rwxrwxr-x    1 user     user       12.8K Mar 26  2015 libcrypt-0.9.33.2.so*
+-rwxrwxr-x    1 user     user       13.0K Mar 26  2015 libdl-0.9.33.2.so*
+-rwxrwxr-x    1 user     user       45.6K Mar 26  2015 libgcc_s.so.1*
+-rwxrwxr-x    1 user     user       60.9K Mar 26  2015 libm-0.9.33.2.so*
+-rwxrwxr-x    1 user     user        4.7K Mar 26  2015 libnsl-0.9.33.2.so*
+-rwxrwxr-x    1 user     user       69.5K Mar 26  2015 libpthread-0.9.33.2.so*
+-rwxrwxr-x    1 user     user        4.7K Mar 26  2015 libresolv-0.9.33.2.so*
+-rwxrwxr-x    1 user     user       13.0K Mar 26  2015 librt-0.9.33.2.so*
+-rwxrwxr-x    1 user     user      275.1K Mar 26  2015 libuClibc-0.9.33.2.so*
+-rwxrwxr-x    1 user     user        4.7K Mar 26  2015 libutil-0.9.33.2.so*
+# l /usr/lib
+-rwxr-xr-x    1 root     root      287.1K Mar 26  2015 libncurses.so.5.9*
 
 # -----------------------------------------------------------------------------
 
