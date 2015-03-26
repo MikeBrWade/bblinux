@@ -6,8 +6,8 @@ dev/console
 dev/null
 etc
 home
-home/default
 home/ftp
+home/user
 lib
 media
 mnt
