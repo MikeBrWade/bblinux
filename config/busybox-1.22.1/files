@@ -211,6 +211,7 @@ usr/bin/microcom
 usr/bin/mkfifo
 usr/bin/nc
 usr/bin/nohup
+usr/bin/nslookup
 usr/bin/od
 usr/bin/openvt
 usr/bin/passwd
