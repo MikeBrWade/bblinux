@@ -26,6 +26,7 @@ bin/grep
 bin/gunzip
 bin/gzip
 bin/hostname
+bin/iostat
 bin/kill
 bin/ln
 bin/login
@@ -230,12 +231,14 @@ usr/bin/sha256sum
 usr/bin/sha3sum
 usr/bin/sha512sum
 usr/bin/sort
+usr/bin/split
 usr/bin/strings
 usr/bin/tail
 usr/bin/tcpsvd
 usr/bin/tee
 usr/bin/telnet
 usr/bin/test
+usr/bin/tftp
 usr/bin/time
 usr/bin/top
 usr/bin/tr
@@ -272,6 +275,8 @@ usr/sbin/ftpd
 usr/sbin/httpd
 usr/sbin/inetd
 usr/sbin/killall5
+usr/sbin/nandump
+usr/sbin/nandwrite
 usr/sbin/ntpd
 usr/sbin/rdate
 usr/sbin/readprofile

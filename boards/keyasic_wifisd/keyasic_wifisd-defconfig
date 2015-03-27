@@ -56,6 +56,7 @@ BBLINUX_PACKAGE[i++]="busybox-1.22.1"
 # -------------------------------------------------------------------- services
 BBLINUX_PACKAGE[i++]="dropbear-2014.63"
 # ---------------------------------------------------------------- applications
+#BBLINUX_PACKAGE[i++]="ncdu-1.10"
 # BBLINUX_PACKAGE[i++]="dtach-0.8"
 # BBLINUX_PACKAGE[i++]="lua-5.2.2"
 # BBLINUX_PACKAGE[i++]="retawq-0.2.6c"
