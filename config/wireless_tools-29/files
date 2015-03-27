@@ -1,0 +1,6 @@
+# vim: syntax=sh
+sbin/iwconfig
+sbin/iwgetid
+sbin/iwlist
+sbin/iwpriv
+sbin/iwspy

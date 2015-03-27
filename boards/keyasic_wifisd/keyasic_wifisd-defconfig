@@ -53,6 +53,7 @@ BBLINUX_PACKAGE[i++]="ncurses-5.9"
 # -------------------------------------------------------- programs & libraries
 BBLINUX_PACKAGE[i++]="busybox-1.22.1"
 # BBLINUX_PACKAGE[i++]="e2fsprogs-1.42.7"
+BBLINUX_PACKAGE[i++]="wireless_tools-29"
 # -------------------------------------------------------------------- services
 BBLINUX_PACKAGE[i++]="dropbear-2014.63"
 # ---------------------------------------------------------------- applications
