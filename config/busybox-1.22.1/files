@@ -275,7 +275,7 @@ usr/sbin/ftpd
 usr/sbin/httpd
 usr/sbin/inetd
 usr/sbin/killall5
-usr/sbin/nandump
+usr/sbin/nanddump
 usr/sbin/nandwrite
 usr/sbin/ntpd
 usr/sbin/rdate
