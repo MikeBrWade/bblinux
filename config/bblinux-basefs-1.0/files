@@ -6,8 +6,6 @@ dev/console
 dev/null
 etc
 home
-home/default
-home/ftp
 lib
 media
 mnt
@@ -26,7 +24,6 @@ run
 sbin
 sys
 tmp
-tmp/ldconfig
 usr
 usr/bin
 usr/etc
@@ -49,11 +46,9 @@ var/lib/pcmcia
 var/lock
 var/lock/subsys
 var/log
-var/pcmcia
 var/nobody
 var/run
 var/spool
 var/spool/cron
 var/spool/cron/crontabs
 var/tmp
-var/www

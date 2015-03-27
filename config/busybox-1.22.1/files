@@ -113,6 +113,11 @@ etc/shadow
 etc/shells
 etc/udhcpd.conf
 etc/wpa_supplicant.conf
+home/ftpd
+home/httpd
+home/httpd/index.html
+home/tftpd
+home/user
 init
 linuxrc
 sbin/arp
@@ -206,6 +211,7 @@ usr/bin/microcom
 usr/bin/mkfifo
 usr/bin/nc
 usr/bin/nohup
+usr/bin/nslookup
 usr/bin/od
 usr/bin/openvt
 usr/bin/passwd
