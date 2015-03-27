@@ -22,12 +22,12 @@
 # Definitions
 # ******************************************************************************
 
-PKG_URL="http://matt.ucc.asn.au/dropbear/releases/"
-PKG_ZIP="dropbear-2014.63.tar.bz2"
+PKG_URL="http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/"
+PKG_ZIP="wireless_tools.29.tar.gz"
 PKG_SUM=""
 
-PKG_TAR="dropbear-2014.63.tar"
-PKG_DIR="dropbear-2014.63"
+PKG_TAR="wireless_tools.29.tar"
+PKG_DIR="wireless_tools.29"
 
 # Function Arguments:
 #      $1 ... Package name, like "glibc-2.19".
@@ -37,21 +37,8 @@ PKG_DIR="dropbear-2014.63"
 # ******************************************************************************
 
 pkg_patch() {
-
-local patchDir="${BBLINUX_CONFIG_DIR}/$1/patch"
-local patchFile=""
-
-PKG_STATUS="patch error"
-
-cd "${PKG_DIR}"
-for patchFile in "${patchDir}"/*; do
-	[[ -r "${patchFile}" ]] && patch -p1 <"${patchFile}"
-done
-cd ..
-
 PKG_STATUS=""
 return 0
-
 }
 
 # ******************************************************************************
@@ -59,39 +46,8 @@ return 0
 # ******************************************************************************
 
 pkg_configure() {
-
-PKG_STATUS="./configure error"
-
-cd "${PKG_DIR}"
-source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
-
-PATH="${XTOOL_BIN_PATH}:${PATH}" \
-AR="${BBLINUX_XTOOL_NAME}-ar" \
-AS="${BBLINUX_XTOOL_NAME}-as --sysroot=${BBLINUX_SYSROOT_DIR}" \
-CC="${BBLINUX_XTOOL_NAME}-cc --sysroot=${BBLINUX_SYSROOT_DIR}" \
-CXX="${BBLINUX_XTOOL_NAME}-c++ --sysroot=${BBLINUX_SYSROOT_DIR}" \
-LD="${BBLINUX_XTOOL_NAME}-ld --sysroot=${BBLINUX_SYSROOT_DIR}" \
-NM="${BBLINUX_XTOOL_NAME}-nm" \
-OBJCOPY="${BBLINUX_XTOOL_NAME}-objcopy" \
-RANLIB="${BBLINUX_XTOOL_NAME}-ranlib" \
-SIZE="${BBLINUX_XTOOL_NAME}-size" \
-STRIP="${BBLINUX_XTOOL_NAME}-strip" \
-CFLAGS="${BBLINUX_CFLAGS}" \
-./configure \
-	--build=${BBLINUX_BUILD} \
-	--host=${BBLINUX_XTOOL_NAME} \
-	--prefix=/usr \
-	--enable-shadow \
-	--disable-lastlog \
-	--disable-pam \
-	--disable-zlib || return 0
-
-source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
-cd ..
-
 PKG_STATUS=""
 return 0
-
 }
 
 # ******************************************************************************
@@ -105,19 +61,19 @@ PKG_STATUS="make error"
 cd "${PKG_DIR}"
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
-PATH="${XTOOL_BIN_PATH}:${PATH}" make --jobs=${NJOBS} \
-	ARFLAGS="rv" \
-	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- \
-	PROGRAMS="dropbear dbclient dropbearkey scp" \
-	MULTI=1 \
-	SCPPROGRESS=1 || return 0
+PATH="${XTOOL_BIN_PATH}:${PATH}" \
+make iwmulticall \
+	AR="${BBLINUX_XTOOL_NAME}-ar" \
+	CC="${BBLINUX_XTOOL_NAME}-cc --sysroot=${BBLINUX_SYSROOT_DIR}" \
+	RANLIB="${BBLINUX_XTOOL_NAME}-ranlib" \
+	CFLAGS="${BBLINUX_CFLAGS}" \
+	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
 
 PKG_STATUS=""
 return 0
-
 }
 
 # ******************************************************************************
@@ -126,34 +82,22 @@ return 0
 
 pkg_install() {
 
-local installDir="${BBLINUX_SYSROOT_DIR}/usr/bin"
-
 PKG_STATUS="install error"
 
 cd "${PKG_DIR}"
-install --mode=755 --owner=0 --group=0 dropbearmulti "${installDir}"
-pushd "${installDir}" >/dev/null 2>&1
-rm --force dbclient
-rm --force dropbearkey
-rm --force scp
-rm --force ssh
-rm --force ../sbin/dropbear
-link dropbearmulti dbclient
-link dropbearmulti dropbearkey
-link dropbearmulti scp
-link dropbearmulti ssh
-link dropbearmulti ../sbin/dropbear
-popd >/dev/null 2>&1
-cd ..
+source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
-if [[ -d "rootfs/" ]]; then
-	find "rootfs/" ! -type d -exec touch {} \;
-	cp --archive --force rootfs/* "${BBLINUX_SYSROOT_DIR}"
-fi
+PATH="${XTOOL_BIN_PATH}:${PATH}" \
+CC="${BBLINUX_XTOOL_NAME}-cc --sysroot=${BBLINUX_SYSROOT_DIR}" \
+PREFIX="${BBLINUX_SYSROOT_DIR}" \
+make install-iwmulticall \
+	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- || return 0
+
+source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
+cd ..
 
 PKG_STATUS=""
 return 0
-
 }
 
 # ******************************************************************************
