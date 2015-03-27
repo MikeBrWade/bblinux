@@ -1,0 +1,12 @@
+# vim: syntax=sh
+etc/rc.d/init.d/sshd
+etc/rc.d/rc.shutdown/50.sshd
+etc/rc.d/rc.startup/50.sshd
+etc/ssh/dss_host_key
+etc/ssh/rsa_host_key
+usr/bin/dbclient
+usr/bin/dropbearkey
+usr/bin/dropbearmulti
+usr/bin/scp
+usr/bin/ssh
+usr/sbin/dropbear
