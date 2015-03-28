@@ -22,7 +22,7 @@
 # Definitions
 # ******************************************************************************
 
-PKG_URL="http://pkgs.fedoraproject.org/repo/pkgs/ncdu/ncdu-1.10.tar.gz/7535decc8d54eca811493e82d4bfab2d/"
+PKG_URL="http://dev.yorhel.nl/download/"
 PKG_ZIP="ncdu-1.10.tar.gz"
 PKG_SUM=""
 
@@ -37,21 +37,8 @@ PKG_DIR="ncdu-1.10"
 # ******************************************************************************
 
 pkg_patch() {
-
-local patchDir="${BBLINUX_CONFIG_DIR}/$1/patch"
-local patchFile=""
-
-PKG_STATUS="patch error"
-
-cd "${PKG_DIR}"
-for patchFile in "${patchDir}"/*; do
-	[[ -r "${patchFile}" ]] && patch -p1 <"${patchFile}"
-done
-cd ..
-
 PKG_STATUS=""
 return 0
-
 }
 
 # ******************************************************************************
@@ -81,10 +68,7 @@ CFLAGS="${BBLINUX_CFLAGS}"
 	--build=${BBLINUX_BUILD} \
 	--host=${BBLINUX_XTOOL_NAME} \
 	--prefix=/usr \
-	--enable-shadow \
-	--disable-lastlog \
-	--disable-pam \
-	--disable-zlib || return 0
+	--with-ncurses || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
@@ -106,11 +90,7 @@ cd "${PKG_DIR}"
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
 PATH="${XTOOL_BIN_PATH}:${PATH}" make --jobs=${NJOBS} \
-	ARFLAGS="rv" \
-	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- \
-	PROGRAMS="dropbear dbclient dropbearkey scp" \
-	MULTI=1 \
-	SCPPROGRESS=1 || return 0
+	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
@@ -126,24 +106,18 @@ return 0
 
 pkg_install() {
 
-local installDir="${BBLINUX_SYSROOT_DIR}/usr/bin"
-
 PKG_STATUS="install error"
 
 cd "${PKG_DIR}"
-install --mode=755 --owner=0 --group=0 dropbearmulti "${installDir}"
-pushd "${installDir}" >/dev/null 2>&1
-rm --force dbclient
-rm --force dropbearkey
-rm --force scp
-rm --force ssh
-rm --force ../sbin/dropbear
-link dropbearmulti dbclient
-link dropbearmulti dropbearkey
-link dropbearmulti scp
-link dropbearmulti ssh
-link dropbearmulti ../sbin/dropbear
-popd >/dev/null 2>&1
+source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
+
+CFLAGS="${BBLINUX_CFLAGS} --sysroot=${BBLINUX_SYSROOT_DIR}" \
+PATH="${XTOOL_BIN_PATH}:${PATH}" make \
+        CROSS_COMPILE="${BBLINUX_XTOOL_NAME}-" \
+	DESTDIR="${BBLINUX_SYSROOT_DIR}" \
+        install || return 1
+
+source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
 
 if [[ -d "rootfs/" ]]; then
