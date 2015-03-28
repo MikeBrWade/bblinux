@@ -59,73 +59,72 @@ fi
 
 }
 
-# *****************************************************************************
+# <--------------------------------------------------------- 132 columns ---------------------------------------------------------->
+# *********************************************************************************************************************************
 # Make a file to list the bblinux package contents.
-# *****************************************************************************
+# *********************************************************************************************************************************
 
 # Function Arguments:
 #      $1 ... ASCII file that is the file list
 
 package_list_make() {
 
-# The file list is an ASCII file that is the list of files from which to make
-# the binary package; it can have some scripting that interprets variables to
-# enable the selection of package files, so the file list needs some special
-# processing.  It is filtered, honoring any embedded scripting, and the actual
-# list of binary package files is created as ${BBLINUX_BUILD_DIR}/var/files
+# The file list is an ASCII file that is the list of files from which to make the binary package; it can have some scripting that
+# interprets variables to control the list of files, so the file list needs some special processing to interpret the scripting.
+# The file list is filtered in this function, honoring any embedded scripting, and the actual list of binary package files is
+# created as ${BBLINUX_BUILD_DIR}/var/files
 
-local cfgPkgFiles="$1"
-local pathname=""
+local cfgPkgFiles="$1" # This is a rooted full pathname of the files-list file.
+local pathname=""      # This is local variable for miscellaneous use.
 
 local -i lineNum=0
 local -i nestings=0
-local -i uselines=1
-local -i oldUseLine=1
+local -i uselines=1   # 1 indicates that lines from the files-list file are being used.  0 indicates lines are being skipped.
+local -i oldUseLine=1 # This makes a stack of one deep for the "uselines" flag.
 local -i retStat=0
 
 echo "***** Making Package File List" # Make a log file entry.
 
-rm --force "${BBLINUX_BUILD_DIR}/var/files"
->"${BBLINUX_BUILD_DIR}/var/files"
+rm --force "${BBLINUX_BUILD_DIR}/var/files" # This is the file that will have the explicit list of files names that is generated
+>"${BBLINUX_BUILD_DIR}/var/files"           # by processing the source files-list file.
+
 while read; do
 	lineNum=$((${lineNum}+1))
+	[[ -z "${REPLY}"       ]] && continue || true # ......................................................... Skip blank lines.
+	[[ "${REPLY}" =~ ^\ *$ ]] && continue || true # .................................................... Skip whitespace lines.
+	[[ "${REPLY}" =~ ^\ *# ]] && continue || true # ....................................................... Skip comment lines.
 	if [[ "${REPLY}" =~ ^if\  ]]; then
-		# .................................... Interpret the 'if' lines.
+		# ....................................................................................... Interpret the 'if' lines.
 		if [[ ${nestings} == 1 ]]; then
-echo "E> Cannot nest scripting in pkg-cfg files-list file."
-echo "=> line ${lineNum}: \"${REPLY}\""
+			echo "E> Cannot nest scripting in files-list file."
+			echo "=> line ${lineNum}: \"${REPLY}\""
 			continue
 		fi
 		set ${REPLY}
 		if [[ $# != 4 ]]; then
-echo "E> IGNORING malformed script in pkg-cfg files-list file."
-echo "=> line ${lineNum}: \"${REPLY}\""
+			echo "E> IGNORING malformed if-condition in files-list file."
+			echo "=> line ${lineNum}: \"${REPLY}\""
 			continue
 		fi
 		oldUseLine=${uselines}
-		eval [[ "\$$2" $3 "$4" ]] && uselines=1 || uselines=0
+		eval [[ "\$$2" $3 "$4" ]] && uselines=1 || uselines=0  # interpret the if-condtion
 		nestings=1
-echo "if \$$2 $3 $4 # -- nestings=${nestings} uselines=${uselines}"
+		echo "if \$$2 $3 $4 # -- nestings=${nestings} uselines=${uselines}"
 		continue
 	fi
 	if [[ "${REPLY}" =~ ^fi ]]; then
-		# .................................... Interpret the 'fi' lines.
+		# ....................................................................................... Interpret the 'fi' lines.
 		uselines=${oldUseLine}
 		nestings=0
-echo "fi # ------------- nestings=${nestings} uselines=${uselines}"
-		continue
-	fi
-	if [[ "${REPLY}" =~ ^\ *# ]]; then
-		# ................................. Interpret the comment lines.
-echo "Skipping ${REPLY}"
+		echo "fi # ------------- nestings=${nestings} uselines=${uselines}"
 		continue
 	fi
 	if [[ ${uselines} == 1 ]]; then
-		# .................................... Interpret the used lines.
+		# ....................................................................................... Interpret the used lines.
 		if [[ "${REPLY}" =~ ^\'glob\'\  ]]; then
-		# ........................................ Interpret file globs.
+			# ................................................................................... Interpret file globs.
 			set ${REPLY}
-echo "Start 'glob' \"$2\""
+			echo "Start 'glob' \"$2\""
 			_p=""
 			for pathname in ${BBLINUX_SYSROOT_DIR}/$2; do
 				if [[ -f ${pathname} ]]; then
@@ -134,9 +133,33 @@ echo "Start 'glob' \"$2\""
 				fi
 			done
 			unset _p
-echo "End 'glob' \"$2\""
+			echo "End 'glob' \"$2\""
+		elif [[ "${REPLY}" =~ ^\'hardlink\'\  ]]; then
+			# ........................................................................... Interpret 'hardlinked' files.
+			set ${REPLY}
+			echo "Start 'hardli' \"$2\" \"$3\""
+			for pathname in ${BBLINUX_SYSROOT_DIR}/$2; do
+				if [[ ${pathname} -ef ${BBLINUX_SYSROOT_DIR}/$3 ]]; then
+					_p=${pathname#${BBLINUX_SYSROOT_DIR}/}
+					echo ${_p} >>"${BBLINUX_BUILD_DIR}/var/files"
+				fi
+			done
+			unset _p
+			echo "End 'hardli' \"$2\" \"$3\""
+		elif [[ "${REPLY}" =~ ^\'symlink\'\  ]]; then
+			# ............................................................................ Interpret 'symlinked' files.
+			set ${REPLY}
+			echo "Start 'synlink' \"$2\" \"$3\""
+			for pathname in ${BBLINUX_SYSROOT_DIR}/$2; do
+				if [[ -h ${pathname} && "$(readlink ${pathname})" == "$3" ]]; then
+					_p=${pathname#${BBLINUX_SYSROOT_DIR}/}
+					echo ${_p} >>"${BBLINUX_BUILD_DIR}/var/files"
+				fi
+			done
+			unset _p
+			echo "End 'synlink' \"$2\" \"$3\""
 		else
-		# ....................................... Interpret file names.
+			# ................................................................................... Interpret file names.
 			eval "pathname=${REPLY}"
 			echo ${pathname} >>"${BBLINUX_BUILD_DIR}/var/files"
 		fi
@@ -159,6 +182,7 @@ fi
 return ${retStat}
 
 }
+# <--------------------------------------------------------- 132 columns ---------------------------------------------------------->
 
 # *****************************************************************************
 # Build a package from source and make a binary package.

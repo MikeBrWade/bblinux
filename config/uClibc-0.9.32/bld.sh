@@ -107,10 +107,10 @@ find "${srcdir}" ! -type d | while read srcname; do
 		if [[ ! -d "${dstpath}" ]]; then
 			mkdir --mode=755 --parents --verbose "${dstpath}"
 		fi
-		cp --archive --verbose "${srcname}" "${dstpath}"
+		cp --no-dereference --verbose "${srcname}" "${dstpath}"
 		[[ ! -L "${dstfile}" ]] && {
 			if [[ "${dstfile}" =~ ".so" ]]; then
-				chmod 775 "${dstfile}"
+				chmod 755 "${dstfile}"
 			else
 				chmod ugo+r "${dstfile}"
 				chmod u+w   "${dstfile}"
