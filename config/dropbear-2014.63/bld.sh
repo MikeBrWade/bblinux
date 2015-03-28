@@ -83,8 +83,7 @@ CFLAGS="${BBLINUX_CFLAGS}" \
 	--prefix=/usr \
 	--enable-shadow \
 	--disable-lastlog \
-	--disable-pam \
-	--disable-zlib || return 0
+	--disable-pam || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
@@ -105,7 +104,8 @@ PKG_STATUS="make error"
 cd "${PKG_DIR}"
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
-PATH="${XTOOL_BIN_PATH}:${PATH}" make --jobs=${NJOBS} \
+PATH="${XTOOL_BIN_PATH}:${PATH}" make \
+	--jobs=${NJOBS} \
 	ARFLAGS="rv" \
 	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- \
 	PROGRAMS="dropbear dbclient dropbearkey scp" \

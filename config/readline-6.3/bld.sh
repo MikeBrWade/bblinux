@@ -22,12 +22,12 @@
 # Definitions
 # ******************************************************************************
 
-PKG_URL="http://ftp.gnu.org/gnu/ncurses/"
-PKG_ZIP="ncurses-5.9.tar.gz"
+PKG_URL="http://ftp.gnu.org/gnu/readline/"
+PKG_ZIP="readline-6.3.tar.gz"
 PKG_SUM=""
 
-PKG_TAR="ncurses-5.9.tar"
-PKG_DIR="ncurses-5.9"
+PKG_TAR="readline-6.3.tar"
+PKG_DIR="readline-6.3"
 
 # Function Arguments:
 #      $1 ... Package name, like "glibc-2.19".
@@ -37,8 +37,23 @@ PKG_DIR="ncurses-5.9"
 # ******************************************************************************
 
 pkg_patch() {
+
+local patchDir="${BBLINUX_CONFIG_DIR}/$1/patch"
+local patchFile=""
+
+PKG_STATUS="patch error"
+
+cd "${PKG_DIR}"
+for patchFile in "${patchDir}"/*; do
+	[[ -r "${patchFile}" ]] && patch -p0 <"${patchFile}"
+done
+sed -e '/MV.*old/d'  -i Makefile.in
+sed -e '/OLDSUFF/c:' -i support/shlib-install
+cd ..
+
 PKG_STATUS=""
 return 0
+
 }
 
 # ******************************************************************************
@@ -52,11 +67,6 @@ PKG_STATUS="./configure error"
 cd "${PKG_DIR}"
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
-if [[ -f "${BBLINUX_CONFIG_DIR}/$1/terminfo.src" ]]; then
-	mv --verbose misc/terminfo.src misc/terminfo.src-ORIG
-	cp --verbose ${BBLINUX_CONFIG_DIR}/$1/terminfo.src misc/terminfo.src
-fi
-
 PATH="${XTOOL_BIN_PATH}:${PATH}" \
 AR="${BBLINUX_XTOOL_NAME}-ar" \
 AS="${BBLINUX_XTOOL_NAME}-as --sysroot=${BBLINUX_SYSROOT_DIR}" \
@@ -69,25 +79,11 @@ RANLIB="${BBLINUX_XTOOL_NAME}-ranlib" \
 SIZE="${BBLINUX_XTOOL_NAME}-size" \
 STRIP="${BBLINUX_XTOOL_NAME}-strip" \
 CFLAGS="${BBLINUX_CFLAGS}" \
+bash_cv_wcwidth_broken='no' \
 ./configure \
 	--build=${BBLINUX_BUILD} \
 	--host=${BBLINUX_XTOOL_NAME} \
-	--prefix=/usr \
-	--mandir=/usr/share/man \
-	--enable-shared \
-	--enable-overwrite \
-	--disable-largefile \
-	--disable-termcap \
-	--with-build-cc=gcc \
-	--with-install-prefix=${BBLINUX_SYSROOT_DIR} \
-	--with-shared \
-	--without-ada \
-	--without-cxx \
-	--without-cxx-binding \
-	--without-debug \
-	--without-gpm \
-	--without-normal \
-	--without-progs || return 0
+	--prefix=/usr || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
@@ -108,9 +104,11 @@ PKG_STATUS="make error"
 cd "${PKG_DIR}"
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
+NJOBS=1 # I think a multi-job build is not stable.
 PATH="${XTOOL_BIN_PATH}:${PATH}" make \
 	--jobs=${NJOBS} \
-	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- || return 0
+	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- \
+	SHLIB_LIBS=-lncurses || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
@@ -131,15 +129,13 @@ PKG_STATUS="install error"
 cd "${PKG_DIR}"
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
-PATH="${XTOOL_BIN_PATH}:${PATH}" make install || return 1
+PATH="${XTOOL_BIN_PATH}:${PATH}" make \
+	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- \
+	DESTDIR=${BBLINUX_SYSROOT_DIR} \
+	install || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
-
-_usrlibdir="${BBLINUX_SYSROOT_DIR}/usr/lib"
-ln --force --symbolic libncurses.so ${_usrlibdir}/libtinfo.so.5
-ln --force --symbolic libtinfo.so.5 ${_usrlibdir}/libtinfo.so
-unset _usrlibdir
 
 if [[ -d "rootfs/" ]]; then
 	find "rootfs/" ! -type d -exec touch {} \;

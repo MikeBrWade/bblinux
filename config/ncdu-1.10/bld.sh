@@ -89,7 +89,8 @@ PKG_STATUS="make error"
 cd "${PKG_DIR}"
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
-PATH="${XTOOL_BIN_PATH}:${PATH}" make --jobs=${NJOBS} \
+PATH="${XTOOL_BIN_PATH}:${PATH}" make \
+	--jobs=${NJOBS} \
 	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
@@ -113,9 +114,9 @@ source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
 CFLAGS="${BBLINUX_CFLAGS} --sysroot=${BBLINUX_SYSROOT_DIR}" \
 PATH="${XTOOL_BIN_PATH}:${PATH}" make \
-        CROSS_COMPILE="${BBLINUX_XTOOL_NAME}-" \
+	CROSS_COMPILE="${BBLINUX_XTOOL_NAME}-" \
 	DESTDIR="${BBLINUX_SYSROOT_DIR}" \
-        install || return 1
+	install || return 1
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..

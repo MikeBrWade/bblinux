@@ -455,7 +455,7 @@ T1P=${SECONDS}
 
 for _p in ${BBLINUX_PACKAGE[@]}; do
 
-	[[ -n "${ZP}" && -f "${BBLINUX_BUILD_DIR}/run/done.${p}" ]] && continue
+	[[ -n "${ZP}" && -f "${BBLINUX_BUILD_DIR}/run/done.${_p}" ]] && continue
 
 	t1=${SECONDS}
 

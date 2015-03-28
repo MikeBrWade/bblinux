@@ -50,6 +50,8 @@ BBLINUX_PACKAGE[i++]="bblinux-devfs-1.0"
 # ------------------------------------------------------------------- libraries
 BBLINUX_PACKAGE[i++]="uClibc-0.9.32"
 BBLINUX_PACKAGE[i++]="ncurses-5.9"
+BBLINUX_PACKAGE[i++]="readline-6.3"
+BBLINUX_PACKAGE[i++]="zlib-1.2.8"
 # -------------------------------------------------------- programs & libraries
 BBLINUX_PACKAGE[i++]="busybox-1.22.1"
 # BBLINUX_PACKAGE[i++]="e2fsprogs-1.42.7"
@@ -59,6 +61,7 @@ BBLINUX_PACKAGE[i++]="dropbear-2014.63"
 # ---------------------------------------------------------------- applications
 BBLINUX_PACKAGE[i++]="ncdu-1.10"
 # BBLINUX_PACKAGE[i++]="dtach-0.8"
+# BBLINUX_PACKAGE[i++]="dvtm-0.9"
 # BBLINUX_PACKAGE[i++]="lua-5.2.2"
 # BBLINUX_PACKAGE[i++]="retawq-0.2.6c"
 

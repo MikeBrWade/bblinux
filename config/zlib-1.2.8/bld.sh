@@ -22,12 +22,12 @@
 # Definitions
 # ******************************************************************************
 
-PKG_URL="http://ftp.gnu.org/gnu/ncurses/"
-PKG_ZIP="ncurses-5.9.tar.gz"
+PKG_URL="http://zlib.net/"
+PKG_ZIP="zlib-1.2.8.tar.gz"
 PKG_SUM=""
 
-PKG_TAR="ncurses-5.9.tar"
-PKG_DIR="ncurses-5.9"
+PKG_TAR="zlib-1.2.8.tar"
+PKG_DIR="zlib-1.2.8"
 
 # Function Arguments:
 #      $1 ... Package name, like "glibc-2.19".
@@ -52,42 +52,15 @@ PKG_STATUS="./configure error"
 cd "${PKG_DIR}"
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
-if [[ -f "${BBLINUX_CONFIG_DIR}/$1/terminfo.src" ]]; then
-	mv --verbose misc/terminfo.src misc/terminfo.src-ORIG
-	cp --verbose ${BBLINUX_CONFIG_DIR}/$1/terminfo.src misc/terminfo.src
-fi
-
 PATH="${XTOOL_BIN_PATH}:${PATH}" \
 AR="${BBLINUX_XTOOL_NAME}-ar" \
-AS="${BBLINUX_XTOOL_NAME}-as --sysroot=${BBLINUX_SYSROOT_DIR}" \
+ARFLAGS="rc" \
 CC="${BBLINUX_XTOOL_NAME}-cc --sysroot=${BBLINUX_SYSROOT_DIR}" \
-CXX="${BBLINUX_XTOOL_NAME}-c++ --sysroot=${BBLINUX_SYSROOT_DIR}" \
-LD="${BBLINUX_XTOOL_NAME}-ld --sysroot=${BBLINUX_SYSROOT_DIR}" \
-NM="${BBLINUX_XTOOL_NAME}-nm" \
-OBJCOPY="${BBLINUX_XTOOL_NAME}-objcopy" \
-RANLIB="${BBLINUX_XTOOL_NAME}-ranlib" \
-SIZE="${BBLINUX_XTOOL_NAME}-size" \
-STRIP="${BBLINUX_XTOOL_NAME}-strip" \
 CFLAGS="${BBLINUX_CFLAGS}" \
+CROSS_PREFIX="${BBLINUX_XTOOL_NAME}" \
+prefix="${BBLINUX_SYSROOT_DIR}" \
 ./configure \
-	--build=${BBLINUX_BUILD} \
-	--host=${BBLINUX_XTOOL_NAME} \
-	--prefix=/usr \
-	--mandir=/usr/share/man \
-	--enable-shared \
-	--enable-overwrite \
-	--disable-largefile \
-	--disable-termcap \
-	--with-build-cc=gcc \
-	--with-install-prefix=${BBLINUX_SYSROOT_DIR} \
-	--with-shared \
-	--without-ada \
-	--without-cxx \
-	--without-cxx-binding \
-	--without-debug \
-	--without-gpm \
-	--without-normal \
-	--without-progs || return 0
+	--prefix=/usr || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
@@ -131,15 +104,13 @@ PKG_STATUS="install error"
 cd "${PKG_DIR}"
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
-PATH="${XTOOL_BIN_PATH}:${PATH}" make install || return 1
+PATH="${XTOOL_BIN_PATH}:${PATH}" make \
+	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}- \
+	DESTDIR=${BBLINUX_SYSROOT_DIR} \
+	install || return 0
 
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_clr"
 cd ..
-
-_usrlibdir="${BBLINUX_SYSROOT_DIR}/usr/lib"
-ln --force --symbolic libncurses.so ${_usrlibdir}/libtinfo.so.5
-ln --force --symbolic libtinfo.so.5 ${_usrlibdir}/libtinfo.so
-unset _usrlibdir
 
 if [[ -d "rootfs/" ]]; then
 	find "rootfs/" ! -type d -exec touch {} \;

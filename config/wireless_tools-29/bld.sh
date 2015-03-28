@@ -63,6 +63,7 @@ source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 
 PATH="${XTOOL_BIN_PATH}:${PATH}" \
 make iwmulticall \
+	--jobs=${NJOBS} \
 	AR="${BBLINUX_XTOOL_NAME}-ar" \
 	CC="${BBLINUX_XTOOL_NAME}-cc --sysroot=${BBLINUX_SYSROOT_DIR}" \
 	RANLIB="${BBLINUX_XTOOL_NAME}-ranlib" \
