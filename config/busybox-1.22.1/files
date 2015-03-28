@@ -16,6 +16,7 @@ etc/hostapd.conf
 etc/hostname
 etc/hosts
 etc/httpd.conf
+etc/init.d
 etc/inittab
 etc/inputrc
 etc/issue
