@@ -398,6 +398,13 @@ source ./scripts/_functions.sh # bblinux build support
 bbl_root_check  || exit 1
 bbl_dist_config || exit 1
 
+ZP="" # This is a mechanism to skip already-built packages.
+if [[ $# -gt 0 ]]; then
+	# "$1" may be unbound so hide it in this if statement.
+	# Set the ZP flag, if so specified; otherwise reset the package list.
+	[[ "$1" == "continue" ]] && ZP="y" || BBLINUX_PACKAGE=("$1")
+fi
+
 # *****************************************************************************
 # Build each package.
 # *****************************************************************************
@@ -423,6 +430,8 @@ fi
 T1P=${SECONDS}
 
 for _p in ${BBLINUX_PACKAGE[@]}; do
+
+	[[ -n "${ZP}" && -f "${BBLINUX_BUILD_DIR}/run/done.${p}" ]] && continue
 
 	t1=${SECONDS}
 

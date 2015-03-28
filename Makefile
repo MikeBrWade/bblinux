@@ -24,6 +24,10 @@
 #
 .NOTPARALLEL:
 
+# -- Single-Package Target
+#
+PACKAGE=""
+
 # -- Sanity
 #
 SHELL=/bin/bash
@@ -34,7 +38,7 @@ SHELL=/bin/bash
 
 .PHONY: help
 .PHONY: getcfg xtools pkglist dload
-.PHONY: clean kclean lclean pclean pkgs fsys
+.PHONY: clean kclean lclean pclean pkgs pkgs_ fsys
 
 # -----------------------------------------------------------------------------
 # -- Default Target
@@ -54,7 +58,10 @@ help:
 	@echo "lclean - remove the bblinux boot loader build"
 	@echo "pclean - remove the bblinux packages build"
 	@echo "pkgs   - build the bblinux packages"
+	@echo "pkgs_  - continue more building of the bblinux packages"
 	@echo "fsys   - create the root file system image"
+	@echo "PACKAGE=name name - Use this to build a single package:"
+	@echo "         the base file system and uClibc must be in sysroot"
 	@echo ""
 
 # -----------------------------------------------------------------------------
@@ -142,8 +149,14 @@ lclean:	scripts/bld-clean.sh
 pclean:	scripts/bld-clean.sh
 	@(scripts/bld-clean.sh packages)
 
+${PACKAGE}:	bblinux-pkglst.txt scripts/bld-packages.sh
+	@(scripts/bld-packages.sh ${PACKAGE})
+
 pkgs:	bblinux-pkglst.txt scripts/bld-packages.sh
-	@(scripts/bld-packages.sh)                         
+	@(scripts/bld-packages.sh)
+
+pkgs_:	bblinux-pkglst.txt scripts/bld-packages.sh
+	@(scripts/bld-packages.sh continue)
 
 fsys:	scripts/bld-fsys.sh
 	@(scripts/bld-fsys.sh)
