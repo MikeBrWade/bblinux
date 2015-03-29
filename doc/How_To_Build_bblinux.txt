@@ -1,27 +1,281 @@
 How to Build bblinux
-This file is woefully lacking in information.
 
+-- Document Outline --
+0. For the Impatient
+1. Introduction
+2. Licenses
+3. Building Requirements
+4. Build a Cross-compiling Tool Chain
+5. Build bblinux
+   5.1. Setup the bblinux Build System
+   5.2. Selecting the Platform Configuration
+   5.4. Downloading Source Packages
+   5.3. Build the Cross-tool Chain
+   5.5. Make the Packages
+   5.6. Build an Individual Package
+   5.7. Continuing or Resuming Build of Packages
+   5.8. Make the File System Image File
+6. Build Results
 
-In the top-level bblinux directory, try "make help".
+====================
+0. For the Impatient
+====================
 
-Now give these commands:
+Do this:
+
+     $ ./Configure  # one time only is all that is needed!
+     $ make getpkg  # probably select 1
+     $ make xtools  # one time only per board is all that is needed!
+     $ make dload
+     $ sudo make pkgs
+     $ sudo make fsys  # look in target/image/ for the magic burrito
+
+===============
+1. Introduction
+===============
+
+In the following descriptions there are example commands; they are prefixed by
+a shell prompt of "$ ", and comments to shell commands begin with the shell
+comment character '#".
+
+===========
+2. Licenses
+===========
+
+The bblinux make system, documents, and the base file system package are all
+licensed under the GNU General Public License (GPL), a copy of which you can
+find in the file doc/COPYING.
+
+The component source packages, in the dload/ directory, are licensed under a
+number of different licenses.
+
+========================
+3. Building Requirements
+========================
+
+To build bblinux you need the build system, which contains this file so you
+must already have it, and the individual source packages that need to be stored
+in the dload/ directory.
+
+The bblinux build system is hosted in GitHub:
+
+     GitHub repo ...... https://github.com/MikeBrWade/bblinux.git
+     Latest Release ... https://github.com/MikeBrWade/bblinux/tarball/master
+
+The build process creates device nodes, sets ownership and privileges for
+root-owned files; therefore, you need to be root, uid 0 and guid 0, to run the
+parts of the build process.
+
+Software Requirements
+---------------------
+
+The following are the software development tools and their versions that are
+used to develop and maintain bblinux. Roughly the same versions installed on a
+typical Linux distribution ought to work.
+
+     Tool                   Notes
+     ----------------       -------
+     autoconf-2.68
+     automake-1.11.6
+     bash-4.2.39
+     binutils-2.22
+     bison-2.5
+     bzip2-1.0.6
+     coreutils-8.15
+     diffutils-3.2
+     findutils-4.5.10
+     flex-2.5.35
+     gawk-4.0.1 ........... only Gnu awk will work
+     gcc-4.7.2
+     gettext-0.18.1
+     glibc-2.15 ........... version probably doesn't much matter
+     gperf 3.0.4 .......... version probably doesn't much matter
+     grep-2.14
+     gzip-1.4
+     libtool-2.4.2
+     m4-1.4.16
+     make-3.82
+     ncurses-5.9
+     patch-2.6.1
+     perl-5.14 ............ maybe not used?
+     sed-4.2.1
+     tar-1.26
+     texinfo-4.13a
+     xz-5.1.2a
+
+=====================================
+4. Build a Cross-compiling Tool Chain
+=====================================
+
+You do NOT need to be root to make a cross-compiling tool chain.
+
+bblinux uses a cross-compiler tool set (usually called a cross-tool chain) that
+needs to be built. The setup downloads the source packages for Binutils, GCC,
+and Linux, then compiles these with your system's compiler to create the
+cross-building tool chain.
+
+After 'make getcfg' use 'make x-tools' to build the needed cross-tool chain.
+
+=================
+5. Build bblinux
+=================
+
+NOTE  For some of the following steps you need to be root, uid and gid both
+      need to be 0.
+
+      If you don't want to be root, then the make commands can be prefaced with
+      "sudo" or "su -c", where needed; see the examples below.
+
+-----------------------------------
+5.1. Setup the bblinux Build System
+-----------------------------------
+
+The first thing to do is to run the 'Configure' script at the top-level bblinux
+development directory. This needs to be done one time, there is no need to run
+the script again. Example:
 
      $ ./Configure
 
-     $ make getcfg  # select option '1'
-     $ make xtools  # go make a ham sandwich; this will take a while
-     $ make pkglist # a formality; it would happen as needed
-     $ make dload   # get the needed source packages
+This will create a file named "bblinux-setenv.sh"; this file must be present
+for the bblinux build script to work.
 
-     $ sudo make pkgs    # may need your password
-     or
-     $ su -c 'make pkgs' # needs root password
+-----------------------------------------
+5.2. Selecting the Platform Configuration
+-----------------------------------------
 
-     $ sudo make fsys    # may need your password
-     or
-     $ su -c 'make fsys' # needs root password
+The bblinux build system builds bblinux for a given board configuration; the
+board is the actual hardware digital system that runs bblinux.
 
-Now look in target/image/ and you will find the magic root file system image.
+Before building, you select the board configuration with this command:
 
+     $ make getcfg   # No need to be root for this.
+
+You will be given a list of board configurations; select one by typing the
+number in the list and then the Enter key.
+
+-------------------------------
+5.3. Build the Cross-tool Chain
+-------------------------------
+
+Do this ONE TIME after using 'make getcfg'. This will take a while; the
+cross-tool chain packages will be downloaded and a cross-tool chain will by
+built and put into the x-tools directory. You do not need to do this again for
+this board selection; even after using 'make getcfg' to get a different board
+selection and then getting this board again, because the cross-tool chain will
+still be there in x-tools.
+
+YOU MUST DO THIS 'make xtools' ONE TIME *ONLY* AFTER using 'make getcfg' for
+each board for which you want to build bblinux.
+
+     $ make xtools  # Do not do this as root; it will fail if you do. Go make a
+                    # ham sandwich; this will take a while
+
+--------------------------------
+5.4. Downloading Source Packages
+--------------------------------
+
+In the bblinux directory, give this command to download all the required packages for building bblinux for the currently selected board:
+
+     $ make dload   # No need to be root for this.
+
+This makes the package list for this build configuration; see the file
+bblinux-pkglst.txt after giving the "make dload" command.
+
+You may already have all the needed source packages. Copy any source packages
+to ~/Download and the "make dload" command will get them from there, as a local
+cache.
+
+Different bblinux targets have different components, so you need to run
+"make dload" at least once for each different bblinux target board you want to
+build.
+
+----------------------
+5.5. Make the Packages
+----------------------
+
+Give one of these make commands:
+
+     $ sudo make pkgs     # May need your password.
+     $ su -c 'make pkgs'  # Needs root password.
+
+or in a root terminal window:
+
+     $ make pkgs
+
+--------------------------------
+5.6. Build an Individual Package
+--------------------------------
+
+An individual package that has a proper config/<package> directory, whether it
+is in the package list or not, can be built; the following example builds the
+busybox-1.22.1 package.
+
+     $ sudo make PACKAGE=bash-4.2 bash-4.2     # May need your password.
+     $ su -c 'make PACKAGE=bash-4.2 bash-4.2'  # Needs root password.
+
+or in a root terminal window:
+
+     $ make PACKAGE=busybox-1.22.1 busybox-1.22.1
+
+This command can be successfully performed ONLY if the bblinux-basefs-1.0 and
+bblinux-devfs-1.0 packages have been built AND ALL library dependencies have
+been built. This is usefully typically after haven already used "make pkgs".
+
+Any previous build of the package is overwritten. This is handy when
+developing and modifying individual packages, particularly those that are not
+in the package list.
+
+---------------------------------------------
+5.7. Continuing or Resuming Build of Packages
+---------------------------------------------
+
+If a package fails to build and you fix the problem, you can continue building
+the packages re-starting with the last failed package build; use one of these
+commands:
+
+     $ sudo make pkgs_     # May need your password.
+     $ su -c 'make pkgs_'  # Needs root password.
+
+or in a root terminal window:
+
+     $ make pkgs_
+
+You can test this command by interrupting the package build process with CTRL-C
+and then giving the "make pkgs_" command.
+
+------------------------------------
+5.8. Make the File System Image File
+------------------------------------
+
+     $ sudo make fsys     # May need your password.
+     $ su -c 'make fsys'  # Needs root password.
+
+or in a root terminal window:
+
+     $ make fsys
+
+================
+6. Build Results
+================
+
+Packages
+--------
+
+Package build results are in the target/pkgbin/ directory. All packages in this
+directory are put into the bblinux file system.
+
+Images
+------
+
+The build results are in the target/image/ directory.
+
+sysroot
+-------
+
+There is a sysroot directory containing the entire incremental build; the
+bblinux packages are constructed by taking some of the files from the sysroot.
+
+The sysroot directory can be used as an NFS root, if you can get your board to
+do that.
 
 [eof]

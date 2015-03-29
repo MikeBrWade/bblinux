@@ -1,0 +1,382 @@
+This file describes the bblinux build process and has an overview of the
+bblinux run-time startup sequence.
+
+=============
+Build Process 
+=============
+
+1. The top-level bblinux development directory has a file named
+   "bblinux-dnames.sh"; this file is a shell script that has the name and
+   version of the bblinux system to be built.  These will be in the bblinux
+   run-time /etc/issue file.  These name and version are intended to by the
+   distribution name and version of the built bblinux system.
+
+2. The first thing to do is to run the 'Configure' script at the top-level
+   bblinux development directory. This needs to be done one time, there is no
+   need to run the script again. Example:
+
+   ./Configure
+
+   This will create a file named "bblinux-setenv.sh"; this file must be present
+   for the bblinux build script to work.
+
+   The "bblinux-setenv.sh" script sets these variables:
+
+bblinux-setenv.sh
+-----------------
+
+   # Directories
+   export BBLINUX_CACHE_DIR="${HOME}/Downloads"
+   export BBLINUX_DIR=<current directory>
+   export BBLINUX_BOARDS_DIR="${BBLINUX_DIR}/boards"
+   export BBLINUX_BUILD_DIR="${BBLINUX_DIR}/build"
+   export BBLINUX_CONFIG_DIR="${BBLINUX_DIR}/config"
+   export BBLINUX_DLOAD_DIR="${BBLINUX_DIR}/dload"
+   export BBLINUX_DOC_DIR="${BBLINUX_DIR}/doc"
+   export BBLINUX_MNT_DIR="${BBLINUX_DIR}/mnt"
+   export BBLINUX_SCRIPTS_DIR="${BBLINUX_DIR}/scripts"
+   export BBLINUX_SYSROOT_DIR="${BBLINUX_DIR}/sysroot"
+   export BBLINUX_TARGET_DIR="${BBLINUX_DIR}/target"
+   export BBLINUX_XTOOLS_DIR="${BBLINUX_DIR}/x-tools"
+
+   # Build Variables
+   export BBLINUX_BUILD=${MACHTYPE}
+   export BBLINUX_HOST=${MACHTYPE}
+   export ncpus=$(grep "^processor" /proc/cpuinfo | wc -l)
+
+3. Your host's 'make' is used as a program launcher. In the top-level bblinux
+   development directory use 'make'; the Makefile has rules that run the
+   bblinux build scripts. There is not much use of dependency tracking in the
+   Makefile. The build steps are implemented by shell scripts in the scripts/
+   directory. All the shell scripts, and the shell commands in the makefile
+   rules, are bash.
+
+4. Read the doc/How_To_Build_bblinux.txt file.
+
+5. There is a build script named "bld.sh" for each bblinux package in an
+   appropriate subdirectory in config/ directory. Some examples:
+
+   config/busybox-1.22.1/bld.sh
+   config/dropbear-2014.63/bld.sh
+   config/ncdu-1.10/bld.sh
+   config/ncurses-5.9/bld.sh
+   config/readline-6.3/bld.sh
+
+6. List of Shell Variables and Functions, and the files that define them.
+
+./bblinux-config.sh (example)
+-------------------
+
+   #
+   # Board Selection
+   #
+   BBLINUX_BOARD=keyasic_wifisd
+   BBLINUX_CONFIG=keyasic_wifisd-defconfig
+
+   #
+   # Cross-tool Chain
+   #
+   BBLINUX_XTOOL_FNAME="crosstool-ng-1.20.0"
+   BBLINUX_XTOOL_EXT=".tar.bz2"
+   BBLINUX_XTOOL_URL="http://crosstool-ng.org/download/crosstool-ng"
+   BBLINUX_XTOOL_CFG=crosstool-ng.config
+   BBLINUX_XTOOL_NAME=armv5tej-generic-linux-uclibcgnueabi
+
+   #
+   # Bootloader Set-up
+   #
+   BBLINUX_BOOTLOADER="uboot-2010.06-rc1"
+   BBLINUX_UBOOT_PATCH=""
+   BBLINUX_UBOOT_TARGET=""
+
+   #
+   # Target File System  # Must have one of BBLINUX_ROOTFS_INITRAMFS or
+   #                     # BBLINUX_ROOTFS_INITRD, or BBLINUX_ROOTFS_TARBALL
+   #                     # If using BBLINUX_ROOTFS_INITRD then must set
+   #                     # BBLINUX_ROOTFS_SIZE_MB.
+   #
+   BBLINUX_ROOTFS_INITRAMFS=y
+   # BBLINUX_ROOTFS_INITRD is not set
+   # BBLINUX_ROOTFS_TARBALL is not set
+   # BBLINUX_ROOTFS_SIZE_MB is not set
+   BBLINUX_ROOTFS_OVERLAY="fs-overlay.tbz"
+   BBLINUX_ROOTFS_BASE_NAME="initramfs3"
+   BBLINUX_ROOTFS_POST_OP="mkinitramfs.sh"
+
+   #
+   # Compile Flags
+   #
+   BBLINUX_CPU_ARCH=armv5
+   BBLINUX_LINUX_ARCH="arm"
+   BBLINUX_CFLAGS="-mcpu=arm926ej-s -mtune=arm926ej-s"
+
+   #
+   # Packages - Order is important; these will be built in the order
+   #            listed ...
+   #
+   BBLINUX_PACKAGE[@]
+
+scripts/_functions.sh
+---------------------
+
+   TEXT_BRED="\E[1;31m"    # bold+red
+   TEXT_BGREEN="\E[1;32m"  # bold+green
+   TEXT_BYELLOW="\E[1;33m" # bold+yellow
+   TEXT_BBLUE="\E[1;34m"   # bold+blue
+   TEXT_BPURPLE="\E[1;35m" # bold+purple
+   TEXT_BCYAN="\E[1;36m"   # bold+cyan
+   TEXT_BOLD="\E[1;37m"    # bold+white
+   TEXT_RED="\E[0;31m"     # red
+   TEXT_GREEN="\E[0;32m"   # green
+   TEXT_YELLOW="\E[0;33m"  # yellow
+   TEXT_BLUE="\E[0;34m"    # blue
+   TEXT_PURPLE="\E[0;35m"  # purple
+   TEXT_CYAN="\E[0;36m"    # cyan
+   TEXT_NORM="\E[0;39m"    # normal
+
+   K_TB=$'\t'
+   K_NL=$'\n'
+   K_SP=$' '
+
+   set -e # Exit immediately if a command exits with a non-zero status.
+   set -u # Treat unset variables as an error when substituting.
+
+   export IFS="${K_SP}${K_TB}${K_NL}"
+   export LC_ALL=POSIX
+   export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+   umask 022
+
+   # Available functions:
+   #
+   scripts/_functions.sh:: bbl_get_file()
+   scripts/_functions.sh:: dist_root_check()
+   scripts/_functions.sh:: bbl_dist_config()
+
+   scripts/_functions.sh:: bbl_get_file() {
+      # Usage:
+      # bbl_get_file <file_name> <file_name_extension> <url> [url ...]
+      # Example:
+      # <file_name> ............. something like "cloog-0.16.1"
+      # <file_name_extension> ... something like ".tar.gz"
+      # for downloading cloog-0.16.1.tar.gz from <url> [url ...]
+   }
+
+   scripts/_functions.sh:: bbl_dist_config() {
+      # This functions sets:
+      BBLINUX_IMG_NAME
+      BBLINUX_IRD_NAME
+      BBLINUX_TAR_NAME
+      XTOOL_BIN_PATH
+   }
+
+   # This functions sets:
+   #
+   TTYLINUX_XTOOL_DIR = ${TTYLINUX_XBT_DIR}/${TTYLINUX_XBT}
+   XBT_LINUX_ARCH ...... set from ${TTYLINUX_XTOOL_DIR}/_versions
+   XBT_LINUX_VER ....... set from ${TTYLINUX_XTOOL_DIR}/_versions
+   XBT_LIBC_VER ........ set from ${TTYLINUX_XTOOL_DIR}/_versions
+   XBT_XBINUTILS_VER ... set from ${TTYLINUX_XTOOL_DIR}/_versions
+   XBT_XGCC_VER ........ set from ${TTYLINUX_XTOOL_DIR}/_versions
+
+7. The make targets, what they do in general, and the scripts they call.
+
+   Housekeeping Targets:
+   getcfg  - get default config file from the config directory
+   xtools  - build the cross tool-chain for the selected config
+   pkglist - make list of source packages using default config
+   dload   - download source packages
+
+   Build Targets:
+   clean  - remove the bblinux build
+   kclean - remove the bblinux kernel build
+   lclean - remove the bblinux boot loader build
+   pclean - remove the bblinux packages build
+   pkgs   - build the bblinux packages
+   pkgs_  - continue more building of the bblinux packages
+   fsys   - create the root file system image
+   PACKAGE=name name - Use this to build a single package:
+            the base file system and uClibc must be in sysroot
+
+   make getcfg  Do this after running ./Configure, it presents a list of board
+                configurations files. Give a numeric selection of the board for
+                which you want to build bblinux. This will copy the default
+                configuration file from boards/<bard name>/ to be the file
+                named "bblinux-config.sh" in the top-level bblinux directory.
+
+   make xtools  Do this ONE TIME after using 'make getcfg'. This will take a
+                while; the cross-tool chain packages will be downloaded and a
+                cross-tool chain will by built and put into the x-tools
+                directory. You do not need to do this again for this board
+                selection; even after using 'make getcfg' to get a different
+                board selection and then getting this board again, because the
+                cross-tool chain will still be there in x-tools.
+                YOU MUST DO THIS 'make xtools' ONE TIME *ONLY* AFTER using
+                'make getcfg' for each board for which you want to build
+                bblinux.
+
+                Runs 'scripts/bld-xtools.sh' in its own shell.
+
+   make dload   This downloads all the required packages for building bblinux
+                for the currently selected board.
+
+                Runs 'scripts/utl-dload.sh' in its own shell.
+
+   make pkgs    This build the bblinux packages for the currently selected
+   make pkgs_   board. 'make pkgs_' continues building the packages
+                re-starting from the last failed build. You can test this
+                command by interrupting the package build process with CTRL-C
+                and then giving the 'make pkgs_' command. The results of
+                building packages are the tarfiles in the target/pkgbin/
+                directory.
+
+                Runs 'scripts/bld-packages.sh' in its own shell.
+                Runs 'scripts/bld-packages.sh continue' in its own shell.
+
+                Diagram of the Activity:
+                -----------------------
+
+                make
+                +-bash (this shell is for the 'make pkgs' target rules)
+                  |
+                  +-bash (this shell interprets bld-packages.sh)
+                    |
+                    +<--(sources)-- bblinux-config.sh
+                    +<--(sources)-- bblinux-dnames.sh
+                    +<--(sources)-- bblinux-setenv.sh
+                    +<--(sources)-- scripts/_functions.sh
+                    |
+                    +-(for each package bblinux-config.sh::BBLINUX_PACKAGE[@])
+                      +<--(sources)-- config/<package>/bld.sh
+                      +---(calls)-----config/<package>/bld.sh::pkg_patch()
+                      +---(calls)-----config/<package>/bld.sh::pkg_configure()
+                      +---(calls)-----config/<package>/bld.sh::pkg_make()
+                      +---(calls)-----config/<package>/bld.sh::pkg_install()
+                      +---(calls)-----config/<package>/bld.sh::pkg_clean()
+                      +<--(reads)-----config/<package>/rootfs.tar.bz
+                      +<--(reads)-----config/<package>/files
+                      +<--(reads)-----sysroot/<installed files>
+                      +---(writes)--->target/pkgbin/<package>-<arch>.tbz
+
+                Package Building Control Files:
+                -------------------------------
+
+                config/<package>/bld.sh ........... This is the script that
+                                                    actually builds the package
+                                                    and installs it into the
+                                                    sysroot directory.
+
+                config/<package>/files ............ This is a list of files to
+                                                    take from system to put into
+                                                    the actual package tarfile
+                                                    that is used to make the
+                                                    root file system.
+
+                config/<package>/patch/ ........... Patches for the package go
+                                                    in this directory. It is the
+                                                    job of bld.sh to use these.
+
+                config/<package>/rootfs.tar.bz2 ... This is a sysroot overlay of
+                                                    any files that go with the
+                                                    package but are not built
+                                                    from the package source.
+
+   make fsys    This builds the root file system image file from the built
+                packages. The result is a file system image file in the
+                target/image/ directory
+
+                Runs scripts/bld-fsys.sh in its own shell.
+
+8. Processing of config/<package>/files
+
+   config/<package>/files
+   ----------------------
+
+   This is a list of files to take from the sysroot/ directory and put into the
+   actual package tarfile that is used to make the root file system.
+
+   ***** The files are named with full pathnames relative to the sysroot/
+   directory, and WITHOUT a leading '/'. For instance, "usr/bin/blarg" would
+   select the file sysroot/usr/bin/blarg to be put into the package tarfile.
+
+   However, this is not just a simple list of files. There is special macro
+   processing that is used:
+
+   a) Blank lines, and lines having only whitespace, are ignored.
+
+   b) Any line that has zero or more whitespace and then a '#' with anything
+      following is ignored. This means you can use '#' for comments.
+
+   c) Any variables from the "bblinux-config.sh" and "bblinux-setenv.sh" files
+      can be used in a file pathname. See the example in c).
+
+   d) An 'if' construct can be used with any variables from the
+      "bblinux-config.sh" and "bblinux-setenv.sh" files to skip part of the
+      file. Example syntax (shows gcc files which are not really in the build):
+
+      if BBLINUX_BOARD == keyasic_wifisd
+      usr/lib/gcc/${BBLINUX_XTOOL_NAME}/4.7.3/include/arm_neon.h
+      usr/lib/gcc/${BBLINUX_XTOOL_NAME}/4.7.3/include/float.h
+      usr/lib/gcc/${BBLINUX_XTOOL_NAME}/4.7.3/include/iso646.h
+      fi
+
+   e) File name globing can be used:
+
+      'glob' lib/libm-*
+
+   f) All files that symlink to a given target can be specified:
+
+      'symlink' bin/* busybox
+
+      will find all files in sysroot/bin/ directory that are symlinks
+      to "busybox".
+
+================
+Run-time Startup
+================
+
+kernel
+|
++-->sbin/init <--(reads /etc/initab)
+    |
+    +-->/bin/ash /etc/rc.d.rc.sysinit
+        |
+	+-->/bin/ash /etc/board/sysinit1.sh
+        |
+	+-->/bin/ash /etc/board/sysinit2.sh
+        |
+	+-->/bin/ash /etc/rc.d/init.d/random
+        |
+	+-->/bin/ash /etc/rc.d/init.d/syslog
+        |   +-> /sbin/syslogd -m 0
+        |   +-> /sbin/klogd
+        |
+	+-->/bin/ash /etc/rc.d/init.d/network
+        |   +-> ifconfig mlan0 192.168.2.1 netmask 255.255.255.0 up
+        |   +-> iwconfig mlan0 power off
+        |   +-> sleep 2
+        |
+	+-->/bin/ash /etc/rc.d/init.d/hostapd
+        |   +-> hostapd /etc/hostapd.conf
+        |
+	+-->/bin/ash /etc/rc.d/init.d/sshd
+        |   | DSS_KEY="/etc/ssh/dss_host_key"
+        |   | RSA_KEY="/etc/ssh/rsa_host_key"
+        |   | PORT="0.0.0.0:22"
+        |   +-> dropbear -r ${RSA_KEY} -d ${DSS_KEY} -p ${PORT}
+        |
+	+-->/bin/ash /etc/rc.d/init.d/ftpd
+        |   +-> tcpsvd -vE 0.0.0.0 21 ftpd -wv /home/ftpd
+        |
+	+-->/bin/ash /etc/rc.d/init.d/httpd
+        |   +-> httpd -f
+        |
+	+-->/bin/ash /etc/rc.d/init.d/telnetd
+        |   +-> telnetd -F -l /bin/ash
+        |
+	+-->/bin/ash /etc/rc.d/init.d/udhcpd
+        |   +-> udhcpd -f /etc/udhcpd.conf
+        |
+	+-->/bin/ash /etc/board/sysinit3.sh
+
+[eof]

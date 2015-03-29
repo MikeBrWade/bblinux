@@ -22,40 +22,33 @@ bblinux:
 missing /bin/{lua,luac} /usr/lib/{liblua.so,liblua.so.5.1.5} /usr/share/lua/*
 
 # l /bin
--rwxr-xr-x    1 root     root      638.6K Mar 26  2015 busybox*
--rwxr-xr-x    1 root     root      250.6K Mar 26  2015 wpa_supplicant*
+-rwxr-xr-x    1 root     root      658.6K Mar 28  2015 /bin/busybox*
+-rwxr-xr-x    1 root     root      250.6K Mar 28  2015 /bin/wpa_supplicant*
 # l /sbin
--rwxr-xr-x    1 root     root       60.9K Mar 26  2015 iwconfig*
--rwxr-xr-x    1 root     root       11.7K Mar 26  2015 ldconfig*
+-rwxr-xr-x    1 root     root       97.7K Mar 28  2015 /sbin/iwconfig*
 # l /usr/bin
--rwxr-xr-x    6 root     root      266.4K Mar 26  2015 dropbearmulti*
--rwxr-xr-x    1 root     root       10.8K Mar 26  2015 dtach*
--rwxr-xr-x    1 root     root       14.1K Mar 26  2015 getconf*
--rwxr-xr-x    1 root     root        6.4K Mar 26  2015 ldd*
--rwxr-xr-x    1 root     root      318.4K Mar 26  2015 rsync*
-
+-rwxr-xr-x    6 root     root      270.5K Mar 28  2015 dropbearmulti*
 # l /lib
--rwxrwxr-x    1 user     user       28.8K Mar 26  2015 ld-uClibc-0.9.33.2.so*
--rwxrwxr-x    1 user     user       12.8K Mar 26  2015 libcrypt-0.9.33.2.so*
--rwxrwxr-x    1 user     user       13.0K Mar 26  2015 libdl-0.9.33.2.so*
--rwxrwxr-x    1 user     user       45.6K Mar 26  2015 libgcc_s.so.1*
--rwxrwxr-x    1 user     user       60.9K Mar 26  2015 libm-0.9.33.2.so*
--rwxrwxr-x    1 user     user        4.7K Mar 26  2015 libnsl-0.9.33.2.so*
--rwxrwxr-x    1 user     user       69.5K Mar 26  2015 libpthread-0.9.33.2.so*
--rwxrwxr-x    1 user     user        4.7K Mar 26  2015 libresolv-0.9.33.2.so*
--rwxrwxr-x    1 user     user       13.0K Mar 26  2015 librt-0.9.33.2.so*
--rwxrwxr-x    1 user     user      275.1K Mar 26  2015 libuClibc-0.9.33.2.so*
--rwxrwxr-x    1 user     user        4.7K Mar 26  2015 libutil-0.9.33.2.so*
+-rwxr-xr-x    1 root     root       28.8K Mar 28  2015 ld-uClibc-0.9.33.2.so*
+-rwxr-xr-x    1 root     root       12.8K Mar 28  2015 libcrypt-0.9.33.2.so*
+-rwxr-xr-x    1 root     root       13.0K Mar 28  2015 libdl-0.9.33.2.so*
+-rwxr-xr-x    1 root     root       45.6K Mar 28  2015 libgcc_s.so.1*
+-rwxr-xr-x    1 root     root       60.9K Mar 28  2015 libm-0.9.33.2.so*
+-rwxr-xr-x    1 root     root        4.7K Mar 28  2015 libnsl-0.9.33.2.so*
+-rwxr-xr-x    1 root     root       69.5K Mar 28  2015 libpthread-0.9.33.2.so*
+-rwxr-xr-x    1 root     root        4.7K Mar 28  2015 libresolv-0.9.33.2.so*
+-rwxr-xr-x    1 root     root       13.0K Mar 28  2015 librt-0.9.33.2.so*
+-rwxr-xr-x    1 root     root      275.1K Mar 28  2015 libuClibc-0.9.33.2.so*
+-rwxr-xr-x    1 root     root        4.7K Mar 28  2015 libutil-0.9.33.2.so*
 # l /usr/lib
--rwxr-xr-x    1 root     root      287.1K Mar 26  2015 libncurses.so.5.9*
+-r-xr-xr-x    1 root     root       37.5K Mar 28  2015 libhistory.so.6.3*
+-rwxr-xr-x    1 root     root      287.1K Mar 28  2015 libncurses.so.5.9*
+-r-xr-xr-x    1 root     root      286.1K Mar 28  2015 libreadline.so.6.3*
+-rwxr-xr-x    1 root     root      125.7K Mar 28  2015 libz.so.1.2.8*
 
 # -----------------------------------------------------------------------------
 
 Mike Wade's WiFiSD (dkrause's buildroot i think):
-
-# /bin/busybox 
-BusyBox v1.21.1 (2013-10-19 14:51:36 CDT) multi-call binary.
-(where are the patches?)
 
 # cat /proc/cmdline
 root=/dev/ram0 rw console=ttyS0,38400n8 mem=32M initrd=0x500000,3M
@@ -63,7 +56,7 @@ root=/dev/ram0 rw console=ttyS0,38400n8 mem=32M initrd=0x500000,3M
 # uname -a
 Linux buildroot 2.6.32.28-g74ef2a4-dirty #25 PREEMPT Sun Aug 18 17:40:14 PDT 2013 armv5tejl GNU/Linux
 
-# cat cpuinfo
+# cat /proc/cpuinfo
 Processor       : ARM926EJ-S rev 5 (v5l)
 BogoMIPS        : 50.68
 Features        : swp half fastmult edsp java 
