@@ -60,6 +60,7 @@ BBLINUX_PACKAGE[i++]="wireless_tools-29"
 BBLINUX_PACKAGE[i++]="dropbear-2014.63"
 # ---------------------------------------------------------------- applications
 BBLINUX_PACKAGE[i++]="ncdu-1.10"
+#BBLINUX_PACKAGE[i++]="stress-ng-0.03.11"
 # BBLINUX_PACKAGE[i++]="dtach-0.8"
 # BBLINUX_PACKAGE[i++]="dvtm-0.9"
 # BBLINUX_PACKAGE[i++]="lua-5.2.2"
