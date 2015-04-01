@@ -37,7 +37,7 @@ SHELL=/bin/bash
 # *****************************************************************************
 
 .PHONY: help
-.PHONY: getcfg xtools pkglist dload
+.PHONY: getcfg xtools pkglist dload mount umount
 .PHONY: clean kclean lclean pclean pkgs pkgs_ fsys
 
 # -----------------------------------------------------------------------------
@@ -51,6 +51,8 @@ help:
 	@echo "xtools  - build the cross tool-chain for the selected config"
 	@echo "pkglist - make list of source packages using default config"
 	@echo "dload   - download source packages"
+	@echo "mount   - mount the bblinux file system image, if found"
+	@echo "umount  - unmount the bblinux file system image, if mounted"
 	@echo ""
 	@echo "Build Targets:"
 	@echo "clean  - remove the bblinux build"
@@ -130,8 +132,14 @@ bblinux-pkglst.txt pkglist:	bblinux-config.sh
 	@chmod 666 bblinux-pkglst.txt
 	@ls --color -Fl bblinux-pkglst.txt
 
-dload:  bblinux-pkglst.txt scripts/utl-dload.sh
+dload:	bblinux-pkglst.txt scripts/utl-dload.sh
 	@(scripts/utl-dload.sh)
+
+mount:	scripts/utl-mount.sh
+	@(scripts/utl-mount.sh)
+
+umount:	scripts/utl-umount.sh
+	@(scripts/utl-umount.sh)
 
 # -----------------------------------------------------------------------------
 # -- Build Targets

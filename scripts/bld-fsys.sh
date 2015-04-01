@@ -77,17 +77,19 @@ rootfs_initramfs() {
 echo "i> Making a CPIO Archive for an initramfs ... "
 >${BBLINUX_MNT_DIR}/etc/.norootfsck
 pushd "${BBLINUX_MNT_DIR}" >/dev/null 2>&1
-rm --force "${BBLINUX_IRD_NAME}"
+rm --force "${BBLINUX_IRD_NAME}.gz"
 find . | cpio           \
         --create        \
         --format=newc   \
         --absolute-filenames >${BBLINUX_IRD_NAME}
 popd >/dev/null 2>&1
-echo "DONE"
-ls -hl ${BBLINUX_IRD_NAME} | sed --expression="s|${BBLINUX_DIR}/||"
-echo "i> File system CPIO archive ${BBLINUX_IRD_NAME##*/} is ready."
+gzip "${BBLINUX_IRD_NAME}"
 
-ROOT_FS_NAME="${BBLINUX_IRD_NAME}"
+echo "DONE"
+ls -hl "${BBLINUX_IRD_NAME}.gz" | sed --expression="s|${BBLINUX_DIR}/||"
+echo "i> File system CPIO archive ${BBLINUX_IRD_NAME##*/}.gz is ready."
+
+ROOT_FS_NAME="${BBLINUX_IRD_NAME}.gz"
 
 }
 
@@ -202,9 +204,9 @@ if [[ -n "${BBLINUX_ROOTFS_POST_OP:-}" ]]; then
 	_path="${BBLINUX_BOARDS_DIR}/${BBLINUX_BOARD}"
 	_postop="${_path}/${BBLINUX_ROOTFS_POST_OP}"
 	if [[ -x "${_postop}" ]]; then
-		mv "${ROOT_FS_NAME}" "${ROOT_FS_NAME}-IN"
-		${_postop} "${ROOT_FS_NAME}-IN" "${ROOT_FS_NAME}"
-		rm --force "${ROOT_FS_NAME}-IN"
+		mv "${ROOT_FS_NAME}" "${ROOT_FS_NAME}-IN.gz"
+		${_postop} "IN" "${ROOT_FS_NAME}-IN.gz" "${ROOT_FS_NAME}"
+		rm --force "${ROOT_FS_NAME}-IN.gz"
 	fi
 	unset _path
 	unset _postop
