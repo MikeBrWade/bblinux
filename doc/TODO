@@ -38,7 +38,7 @@ missing /bin/{lua,luac} /usr/lib/{liblua.so,liblua.so.5.1.5} /usr/share/lua/*
 -rwxr-xr-x    1 root     root       69.5K Mar 28  2015 libpthread-0.9.33.2.so*
 -rwxr-xr-x    1 root     root        4.7K Mar 28  2015 libresolv-0.9.33.2.so*
 -rwxr-xr-x    1 root     root       13.0K Mar 28  2015 librt-0.9.33.2.so*
--rwxr-xr-x    1 root     root      275.1K Mar 28  2015 libuClibc-0.9.33.2.so*
+-rwxr-xr-x    1 root     root      267.1K Mar 31  2015 libuClibc-0.9.33.2.so*
 -rwxr-xr-x    1 root     root        4.7K Mar 28  2015 libutil-0.9.33.2.so*
 # l /usr/lib
 -r-xr-xr-x    1 root     root       37.5K Mar 28  2015 libhistory.so.6.3*
@@ -49,6 +49,42 @@ missing /bin/{lua,luac} /usr/lib/{liblua.so,liblua.so.5.1.5} /usr/share/lua/*
 # -----------------------------------------------------------------------------
 
 Mike Wade's WiFiSD (dkrause's buildroot i think):
+
+# l /bin
+-rwsr-xr-x    1 root     root      633.6K Oct 19  2013 busybox
+-rwxrwxr-x    1 root     root      250.6K Oct 18  2013 wpa_supplicant
+# l /sbin
+-rwxr-xr-x    1 root     root       60.9K Oct 19  2013 iwconfig
+-rwxr-xr-x    1 root     root       11.7K Oct 19  2013 ldconfig
+# l /usr/bin
+-rwxr-xr-x    1 root     root       10.8K Oct 19  2013 dtach
+-rwxr-xr-x    1 root     root       14.1K Oct 19  2013 getconf
+-rwxr-xr-x    1 root     root        6.4K Oct 19  2013 ldd
+-rwxr-xr-x    1 root     root        8.5K Oct 19  2013 lua
+-rwxr-xr-x    1 root     root        8.9K Oct 19  2013 luac
+-rwxr-xr-x    1 root     root      318.4K Oct 19  2013 rsync
+# l /usr/sbin
+-rwxr-xr-x    1 root     root      161.4K Oct 19  2013 dropbear
+-rwxrwxr-x    1 root     root      650.5K Oct 18  2013 hostapd
+# l /lib
+-rwxr-xr-x    1 root     root       24.0K Oct 19  2013 ld-uClibc-0.9.33.2.so
+-rwxr-xr-x    1 root     root       12.0K Oct 19  2013 libcrypt-0.9.33.2.so
+-rwxr-xr-x    1 root     root       12.0K Oct 19  2013 libdl-0.9.33.2.so
+-rwxr-xr-x    1 root     root      126.5K Oct 19  2013 libgcc_s.so.1
+-rwxr-xr-x    1 root     root       60.0K Oct 19  2013 libm-0.9.33.2.so
+-rwxr-xr-x    1 root     root        4.0K Oct 19  2013 libnsl-0.9.33.2.so
+-rwxr-xr-x    1 root     root       68.0K Oct 19  2013 libpthread-0.9.33.2.so
+-rwxr-xr-x    1 root     root        4.0K Oct 19  2013 libresolv-0.9.33.2.so
+-rwxr-xr-x    1 root     root       12.0K Oct 19  2013 librt-0.9.33.2.so
+-rwxr-xr-x    1 root     root      256.7K Oct 19  2013 libuClibc-0.9.33.2.so
+-rwxr-xr-x    1 root     root        4.0K Oct 19  2013 libutil-0.9.33.2.so
+# l /usr/lib
+-rwxr-xr-x    1 root     root      107.2K Oct 19  2013 libexpat.so.1.6.0
+-r-xr-xr-x    1 root     root       28.8K Oct 19  2013 libhistory.so.6.2
+-rwxr-xr-x    1 root     root      119.2K Oct 19  2013 liblua.so.5.1.5
+-rwxrwxr-x    1 root     root      176.3K Oct 19  2013 libncurses.so.5.9
+-r-xr-xr-x    1 root     root      223.8K Oct 19  2013 libreadline.so.6.2
+-rwxr-xr-x    1 root     root       66.1K Oct 19  2013 libz.so.1.2.8
 
 # cat /proc/cmdline
 root=/dev/ram0 rw console=ttyS0,38400n8 mem=32M initrd=0x500000,3M
