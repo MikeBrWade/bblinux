@@ -80,7 +80,7 @@ kernel_patch() {
 local pname="${BBLINUX_LINUX_DIR}"
 local addin="${BBLINUX_BOARDS_DIR}/${BBLINUX_BOARD}/${pname}-add_in.tar.bz2"
 
-echo -n "g." >&${CONSOLE_FD}
+echo -n "p." >&${CONSOLE_FD}
 
 cd ${BBLINUX_LINUX_DIR}
 
