@@ -143,6 +143,35 @@ return 0
 }
 
 # *****************************************************************************
+# bbl_get_urlnametag
+# *****************************************************************************
+
+# Usage: bbl_get_urlname <url/file.tag>
+
+bbl_get_urlnametag() {
+
+local url=""
+local file=""
+local tag=""
+
+[[ -z "${1}" ]] && return 0 || true # must have url_file_tag
+
+if   [[ "${1}" =~ (.*)\.tgz$      ]]; then tag=".tgz";
+elif [[ "${1}" =~ (.*)\.tar\.gz$  ]]; then tag=".tar.gz";
+elif [[ "${1}" =~ (.*)\.tbz$      ]]; then tag=".tbz";
+elif [[ "${1}" =~ (.*)\.tar\.bz2$ ]]; then tag=".tar.bz2";
+elif [[ "${1}" =~ (.*)\.tar\.xz$  ]]; then tag=".tar.xz";
+else return 0
+fi
+
+url="${BASH_REMATCH[1]%/*}/"
+file="${BASH_REMATCH[1]##*/}"
+
+bbl_get_file ${file} ${tag} ${url}
+
+}
+
+# *****************************************************************************
 # Check for being root.
 # *****************************************************************************
 

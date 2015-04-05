@@ -435,6 +435,7 @@ fi
 
 echo ""
 echo "##### START cross-building packages"
+echo ""
 echo "g - getting the source and configuration packages"
 echo "b - building and installing the package into sysroot"
 echo "f - finding installed files"
@@ -474,6 +475,7 @@ for _p in ${BBLINUX_PACKAGE[@]}; do
 	package_collect "${_p}" >>"${BBLINUX_BUILD_DIR}/log/p.${_p}.log" 2>&1
 	)
 	if [[ $? -ne 0 ]]; then
+		echo -e "${TEXT_RED}ERROR${TEXT_NORM}"
 		echo "Check the build log files.  Probably check:"
 		echo "=> ${BBLINUX_BUILD_DIR}/log/p.${_p}.log"
 		exit 1

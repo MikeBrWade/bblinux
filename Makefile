@@ -38,7 +38,7 @@ SHELL=/bin/bash
 
 .PHONY: help
 .PHONY: getcfg xtools pkglist dload mount umount
-.PHONY: clean kclean lclean pclean pkgs pkgs_ fsys
+.PHONY: clean kclean lclean pclean pkgs pkgs_ kernel fsys
 
 # -----------------------------------------------------------------------------
 # -- Default Target
@@ -61,6 +61,7 @@ help:
 	@echo "pclean - remove the bblinux packages build"
 	@echo "pkgs   - build the bblinux packages"
 	@echo "pkgs_  - continue more building of the bblinux packages"
+	@echo "kernel - build the bblinux target kernel"
 	@echo "fsys   - create the root file system image"
 	@echo "PACKAGE=name name - Use this to build a single package:"
 	@echo "         the base file system and uClibc must be in sysroot"
@@ -74,7 +75,7 @@ getcfg:
 	@(								\
 	dlist=`cd boards; for d in *; do echo $${d#*-}; done`;		\
 	for d in $${dlist}; do						\
-		for f in boards/$${d}/$${d}-*config; do			\
+		for f in boards/$${d}/$${d}.config; do			\
 			[[ -f $${f} ]] && llist+="$${f##*/} " || true;	\
 		done;							\
 	done;								\
@@ -165,6 +166,9 @@ pkgs:	bblinux-pkglst.txt scripts/bld-packages.sh
 
 pkgs_:	bblinux-pkglst.txt scripts/bld-packages.sh
 	@(scripts/bld-packages.sh continue)
+
+kernel:	scripts/bld-kernel.sh
+	(scripts/bld-kernel.sh)
 
 fsys:	scripts/bld-fsys.sh
 	@(scripts/bld-fsys.sh)

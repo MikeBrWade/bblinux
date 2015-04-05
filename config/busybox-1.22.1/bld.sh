@@ -115,10 +115,12 @@ ln -s sbin/init "${BBLINUX_SYSROOT_DIR}/init"
 for f in ${BBLINUX_SYSROOT_DIR}/etc/issue*; do
 	if [[ -f "${f}" ]]; then
 		sedCmd="sed --in-place ${f}"
+		nameStr="[${BBLINUX_DIST_NAME}]\nfile system build -- $(date)"
 		${sedCmd} --expression="s/@@VERSION@@/${BBLINUX_DIST_VERS}/"
-		${sedCmd} --expression="s/@@NAME@@/${BBLINUX_DIST_NAME}/"
-		${sedCmd} --expression="s/^\\m/${BBLINUX_CPU_ARCH}/"
+		${sedCmd} --expression="s/\[@@NAME@@]/${nameStr}/"
+		${sedCmd} --expression="s/^[\\]m/${BBLINUX_CPU_ARCH}/"
 		unset sedCmd
+		unset nameStr
 	fi
 done
 unset f
