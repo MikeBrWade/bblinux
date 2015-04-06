@@ -158,7 +158,7 @@ rm --force "${BBLINUX_BUILD_DIR}/bld/TIME_STAMP"
 >"${BBLINUX_BUILD_DIR}/bld/TIME_STAMP"
 
 echo -n "i> Applying rootfs overlay ... "
-if [[ -n "${BBLINUX_ROOTFS_OVERLAY}:-" ]]; then
+if [[ -n "${BBLINUX_ROOTFS_OVERLAY:-}" ]]; then
 	_f="${BBLINUX_BOARDS_DIR}/${BBLINUX_BOARD}/${BBLINUX_ROOTFS_OVERLAY}"
 	tar --extract --file="${_f}" --directory=${BBLINUX_MNT_DIR}
 	unset _f
