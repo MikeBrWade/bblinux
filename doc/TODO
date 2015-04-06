@@ -16,11 +16,6 @@ Batch of Random Notes
 
 bblinux:
 
-# /usr/bin/getconf 
-/usr/bin/getconf: symbol 'program_invocation_short_name': can't resolve symbol
-
-missing /bin/{lua,luac} /usr/lib/{liblua.so,liblua.so.5.1.5} /usr/share/lua/*
-
 # l /bin
 -rwxr-xr-x    1 root     root      658.6K Mar 28  2015 /bin/busybox*
 -rwxr-xr-x    1 root     root      250.6K Mar 28  2015 /bin/wpa_supplicant*

@@ -14,7 +14,8 @@ How to Build bblinux
    5.5. Make the Packages
    5.6. Build an Individual Package
    5.7. Continuing or Resuming Build of Packages
-   5.8. Make the File System Image File
+   5.8. Make the Kernel and any Modules
+   5.9. Make the File System Image File
 6. Build Results
 
 ====================
@@ -26,6 +27,7 @@ Do this:
      $ ./Configure  # one time only is all that is needed!
      $ make getpkg  # probably select 1
      $ make xtools  # one time only per board is all that is needed!
+     $ make kernel
      $ make dload
      $ sudo make pkgs
      $ sudo make fsys  # look in target/image/ for the magic burrito
@@ -244,7 +246,33 @@ You can test this command by interrupting the package build process with CTRL-C
 and then giving the "make pkgs_" command.
 
 ------------------------------------
-5.8. Make the File System Image File
+5.8. Make the Kernel and any Modules
+------------------------------------
+
+The kernel source tar file already is in the dload/ directory, it was put there
+when the board's cross-tool chain was built with 'make xtools'.  The kernel and
+any modules are built with:
+
+     $ make kernel
+
+The kernel will be in the target/kroot/boot/ directory and a package of any
+kernel modules will be in the target/kpkgs/ directory.
+
+The kernel configuration file is in the boards/<board>/ directory, probably
+named "linux-<version>.config
+
+Setting an environment variable named BB_USE_OLD_BUILD_DIRS like this:
+
+     $ export BB_USE_OLD_BUILD_DIRS=y
+
+This tells the kernel build script to leave the kernel build directory in the
+build/bld/ directory and subsequent 'make kernel' commands will re-use that
+directory. In this case, since there was no 'make clean' given in the kernel
+build directory, if you make no changes to the kernel build configuration file,
+then nothing is actually rebuilt.
+
+------------------------------------
+5.9. Make the File System Image File
 ------------------------------------
 
      $ sudo make fsys     # May need your password.
@@ -253,6 +281,8 @@ and then giving the "make pkgs_" command.
 or in a root terminal window:
 
      $ make fsys
+
+The root file system image file will be in the target/image/ directory.
 
 ================
 6. Build Results
