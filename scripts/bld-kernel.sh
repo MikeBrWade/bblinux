@@ -25,6 +25,44 @@
 # *************************************************************************** #
 
 # *****************************************************************************
+# Look for the kernel source tar file.
+# *****************************************************************************
+
+kernel_source_find() {
+
+local kname=""
+local tag=""
+
+if   [[ "${BBLINUX_LINUX_TAR}" =~ (.*)\.tgz$      ]]; then tag=".tgz";
+elif [[ "${BBLINUX_LINUX_TAR}" =~ (.*)\.tar\.gz$  ]]; then tag=".tar.gz";
+elif [[ "${BBLINUX_LINUX_TAR}" =~ (.*)\.tbz$      ]]; then tag=".tbz";
+elif [[ "${BBLINUX_LINUX_TAR}" =~ (.*)\.tar\.bz2$ ]]; then tag=".tar.bz2";
+elif [[ "${BBLINUX_LINUX_TAR}" =~ (.*)\.tar\.xz$  ]]; then tag=".tar.xz";
+else return 0
+fi
+
+kname=${BASH_REMATCH[1]}
+
+if   [[ -f "${BBLINUX_DLOAD_DIR}/${kname}.tar.xz"  ]]; then tag=".tar.xz";
+elif [[ -f "${BBLINUX_DLOAD_DIR}/${kname}.tar.bz2" ]]; then tag=".tar.bz2";
+elif [[ -f "${BBLINUX_DLOAD_DIR}/${kname}.tbz"     ]]; then tag=".tbz";
+elif [[ -f "${BBLINUX_DLOAD_DIR}/${kname}.tar.gz"  ]]; then tag=".tar.gz";
+elif [[ -f "${BBLINUX_DLOAD_DIR}/${kname}.tgz"     ]]; then tag=".tgz";
+else return 0
+fi
+
+if [[ x"${BBLINUX_LINUX_TAR}" != x"${kname}${tag}" ]]; then
+	echo "i> Switching kernel package name to avoid download."
+	echo "=> Found appropriate package in download directory:"
+	echo "-> was ......... \"${BBLINUX_LINUX_TAR}\""
+	echo "-> now using ... \"${kname}${tag}\""
+fi
+
+export BBLINUX_LINUX_TAR="${kname}${tag}"
+
+}
+
+# *****************************************************************************
 # Get the kernel source tree and configuration file.
 # *****************************************************************************
 
@@ -37,25 +75,48 @@ local kcfg="${BBLINUX_BOARDS_DIR}/${BBLINUX_BOARD}/${pname}.config"
 
 echo -n "g." >&${CONSOLE_FD}
 
-echo "kernel source"
-echo "=> ${BBLINUX_DLOAD_DIR}/${fname}"
+if [[ x"${BB_USE_OLD_BUILD_DIRS:-}" == x"y" ]]; then
+	if [[ -d ${BBLINUX_LINUX_DIR} ]]; then
+		echo ";#"
+		echo ";# kernel_get(): using previous build directory."
+		echo ";# Found \"${BBLINUX_LINUX_DIR}\"."
+		echo ";# Assuming it is patched."
+		echo ";# Copying new config file."
+		echo ";# => ${kcfg}"
+		echo ";#"
+		K_PATCHED="yes"
+		cp ${kcfg} ${BBLINUX_LINUX_DIR}/.config
+		return 0
+	fi
+fi
+
+# Make log file entry.
+#
+echo ";#"
+echo ";# kernel source"
+echo ";# => ${BBLINUX_DLOAD_DIR}/${fname}"
+echo ";#"
 
 # Look for the linux kernel tarball.
 #
 if [[ ! -f "${BBLINUX_DLOAD_DIR}/${fname}" ]]; then
-	echo "E> Linux kernel source tarball not found." >&2
-	echo "=> ${BBLINUX_DLOAD_DIR}/${fname}" >&2
+	echo "E> Linux kernel source tarball not found." >&${CONSOLE_FD}
+	echo "=> ${BBLINUX_DLOAD_DIR}/${fname}" >&${CONSOLE_FD}
 	exit 1
 fi
 
-echo "kernel config"
-echo "=> ${kcfg}"
+# Make log file entry.
+#
+echo ";#"
+echo ";# kernel config"
+echo ";# => ${kcfg}"
+echo ";#"
 
 # Look for the linux kernel configuration file.
 #
 if [[ ! -f "${kcfg}" ]]; then
-	echo "E> Linux kernel configuration file not found." >&2
-	echo "=> ${kcfg}" >&2
+	echo "E> Linux kernel configuration file not found." >&${CONSOLE_FD}
+	echo "=> ${kcfg}" >&${CONSOLE_FD}
 	exit 1
 fi
 
@@ -80,7 +141,14 @@ kernel_patch() {
 local pname="${BBLINUX_LINUX_DIR}"
 local addin="${BBLINUX_BOARDS_DIR}/${BBLINUX_BOARD}/${pname}-add_in.tar.bz2"
 
-echo -n "g." >&${CONSOLE_FD}
+echo -n "p." >&${CONSOLE_FD}
+
+if [[ x"${K_PATCHED}" == x"yes" ]]; then
+	echo ";#"
+	echo ";# Patching not needed."
+	echo ";#"
+	return 0
+fi
 
 cd ${BBLINUX_LINUX_DIR}
 
@@ -103,7 +171,10 @@ fi
 # Add-in
 #
 if [[ -f ${addin} ]]; then
-	echo "Adding ${addin##*/}"
+	# Make log file entry.
+	echo ";#"
+	echo ";# Adding ${addin##*/}"
+	echo ";#"
 	tar --extract --file=${addin}
 fi
 
@@ -111,12 +182,17 @@ fi
 #
 for _p in ${BBLINUX_BOARDS_DIR}/${BBLINUX_BOARD}/${pname}-??.patch; do
 	if [[ -f "${_p}" ]]; then
-		echo "Patching ${_p##*/}"
+		# Make log file entry.
+		echo ";#"
+		echo ";# Patching ${_p##*/}"
+		echo ";#"
 		patch -p1 <${_p}
 	fi
 done; unset _p
 
 cd ..
+
+K_PATCHED="yes"
 
 }
 
@@ -130,6 +206,13 @@ local bitch=""
 local target=""
 
 echo -n "b." >&${CONSOLE_FD}
+
+if [[ x"${BB_USE_OLD_BUILD_DIRS:-}" == x"y" ]]; then
+	echo ";#"
+	echo ";# kernel_xbuild(): using previous build directory."
+	echo ";# Found \"${BBLINUX_LINUX_DIR}\"."
+	echo ";#"
+fi
 
 # Agressively set njobs: set njobs to 2 if ${ncpus} is unset or has non-digit
 # characters.
@@ -149,9 +232,15 @@ _modules=$(set +u; source ".config"; echo "${CONFIG_MODULES}")
 [[ x"${_modules}" == x"y" ]] && K_MODULES="yes"
 unset _modules
 if [[ "${K_MODULES}" == "yes" ]]; then
-	echo "This kernel configuration has modules."
+	# Make log file entry.
+	echo ";#"
+	echo ";# This kernel configuration has modules."
+	echo ";#"
 else
-	echo "This kernel configuration has NO modules."
+	# Make log file entry.
+	echo ";#"
+	echo ";# This kernel configuration has NO modules."
+	echo ";#"
 fi
 
 # Do the kernel cross-building.  If this kernel has modules then build them.
@@ -166,13 +255,18 @@ if [[ "${target}" == "uImage" ]]; then
 	target="uImage dtbs"
 fi
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
-echo "Making Kernel"
+echo ";#"
+echo ";# Making Kernel"
+echo ";#"
 PATH="${_xtraPath}:${XTOOL_BIN_PATH}:${PATH}" make -j ${njobs} ${target} \
 	V=1 \
 	ARCH=${BBLINUX_LINUX_ARCH} \
 	CROSS_COMPILE=${BBLINUX_XTOOL_NAME}-
 if [[ "${K_MODULES}" == "yes" ]]; then
-	echo "Making Kernel Modules"
+	# Make log file entry.
+	echo ";#"
+	echo ";# Making Kernel Modules"
+	echo ";#"
 	PATH="${XTOOL_BIN_PATH}:${PATH}" make -j ${njobs} modules \
 		V=1 \
 		ARCH=${BBLINUX_LINUX_ARCH} \
@@ -195,7 +289,7 @@ local kver="${BBLINUX_LINUX_DIR##*-}"
 local _vmlinuz=""
 local _dtb=""
 
-echo -n "f.k." >&${CONSOLE_FD}
+echo -n "f.p." >&${CONSOLE_FD}
 
 # Setup kernel directories. Ignore messages and don't let the statement fail.
 #
@@ -237,8 +331,10 @@ if [[ "${K_MODULES}" == "yes" ]]; then
 
 	# Install the kernel modules into ${BBLINUX_TARGET_DIR}/kroot
 	#
-	echo "Install the kernel modules into:"
-	echo "=> ${BBLINUX_TARGET_DIR}/kroot"
+	echo ";#"
+	echo ";# Install the kernel modules into:"
+	echo ";# => ${BBLINUX_TARGET_DIR}/kroot"
+	echo ";#"
 	cd "${BBLINUX_LINUX_DIR}"
 	source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 	PATH="${XTOOL_BIN_PATH}:${PATH}" make -j ${njobs} modules_install\
@@ -251,9 +347,11 @@ if [[ "${K_MODULES}" == "yes" ]]; then
 
 	# Scrub the modules directory.
 	#
-	echo "Scrub the modules directory; remove these:"
-	echo "=> ${bDir}/lib/modules/${kver}/build"
-	echo "=> ${bDir}/lib/modules/${kver}/source"
+	echo ";#"
+	echo ";# Scrub the modules directory; remove these:"
+	echo ";# => ${bDir}/lib/modules/${kver}/build"
+	echo ";# => ${bDir}/lib/modules/${kver}/source"
+	echo ";#"
 	rm --force "${bDir}/lib/modules/${kver}/build"
 	rm --force "${bDir}/lib/modules/${kver}/source"
 
@@ -264,7 +362,6 @@ if [[ "${K_MODULES}" == "yes" ]]; then
 	tar --directory ${bDir} --create --file="${uTarBall}" lib
 	bzip2 --force "${uTarBall}"
 	mv --force "${uTarBall}.bz2" "${cTarBall}"
-	cp "${cTarBall}" "${BBLINUX_TARGET_DIR}/pkgbin/"
 	unset uTarBall
 	unset cTarBall
 
@@ -273,8 +370,30 @@ if [[ "${K_MODULES}" == "yes" ]]; then
 
 fi
 
+}
+
+# *****************************************************************************
+# Cleanup kernel build directory.
+# *****************************************************************************
+
+kernel_clean() {
+
 echo -n "c" >&${CONSOLE_FD}
-echo "i> Removing build directory ${BBLINUX_LINUX_DIR}"
+
+if [[ x"${BB_USE_OLD_BUILD_DIRS:-}" == x"y" ]]; then
+	echo ";#"
+	echo ";# kernel_clean(): using previous build directory."
+	echo ";# Found \"${BBLINUX_LINUX_DIR}\"."
+	echo ";# Not cleaning."
+	echo ";#"
+	return 0
+fi
+
+# Make log file entry.
+echo ";#"
+echo ";# Removing build directory ${BBLINUX_LINUX_DIR}"
+echo ";#"
+
 rm --force --recursive "${BBLINUX_LINUX_DIR}/"
 rm --force --recursive "linux/"
 
@@ -291,6 +410,7 @@ rm --force --recursive "linux/"
 # *****************************************************************************
 
 K_MODULES="no"
+K_PATCHED="no"
 
 source ./bblinux-config.sh     # bblinux target build configuration
 source ./bblinux-setenv.sh     # bblinux environment configuration
@@ -302,10 +422,19 @@ bbl_dist_config || exit 1
 # Download the kernel if needed.
 # *****************************************************************************
 
+# There may be an appropriate linux source tarball in ${BBLINUX_DLOAD_DIR} that
+# doesn't have the same file suffix as ${BBLINUX_LINUX_TAR} e.g., the name in
+# ${BBLINUX_LINUX_TAR} may end in ".tar.bz2" and there may be a ".tar.xz" in
+# ${BBLINUX_DLOAD_DIR}  The 'kernel_source_find' function looks for an
+# appropriate kernel source tarball and changes the value of BBLINUX_LINUX_TAR
+# as needed.
+#
+kernel_source_find
+
 if [[ ! -f "${BBLINUX_DLOAD_DIR}/${BBLINUX_LINUX_TAR}" ]]; then
-	echo "Getting Linux source code package."
-	echo "Local cache directory: ${BBLINUX_CACHE_DIR}"
-	bbl_get_urlnametag "${BBLINUX_LINUX_URL}${BBLINUX_LINUX_TAR}"
+	echo "i> Getting Linux source code package."
+	echo "=> Local cache directory: ${BBLINUX_CACHE_DIR}"
+	bbl_get_urlnametag "${BBLINUX_LINUX_URL}/${BBLINUX_LINUX_TAR}"
 fi
 
 # *****************************************************************************
@@ -318,8 +447,8 @@ echo ""
 echo "g - getting the source and configuration packages"
 echo "p - applying add-ins and patches"
 echo "b - building and installing the package into build directory"
-echo "f - finding installed files"
-echo "k - creating installable package"
+echo "f - finding module files"
+echo "p - creating module files package"
 echo "c - cleaning"
 echo ""
 
@@ -344,6 +473,7 @@ kernel_get     >>"${BBLINUX_BUILD_DIR}/log/k.${pname}.log" 2>&1
 kernel_patch   >>"${BBLINUX_BUILD_DIR}/log/k.${pname}.log" 2>&1
 kernel_xbuild  >>"${BBLINUX_BUILD_DIR}/log/k.${pname}.log" 2>&1
 kernel_collect >>"${BBLINUX_BUILD_DIR}/log/k.${pname}.log" 2>&1
+kernel_clean   >>"${BBLINUX_BUILD_DIR}/log/k.${pname}.log" 2>&1
 )
 if [[ $? -ne 0 ]]; then
 	echo -e "${TEXT_RED}ERROR${TEXT_NORM}"

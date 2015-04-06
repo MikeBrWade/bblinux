@@ -85,8 +85,8 @@ source ./scripts/_functions.sh # bblinux build support
 # Say something nice.
 # *****************************************************************************
 
-echo "Getting source code packages [be patient, this will not lock up]."
-echo "Local cache directory: ${BBLINUX_CACHE_DIR}"
+echo "i> Getting source code packages [be patient, this will not lock up]."
+echo "=> Local cache directory: ${BBLINUX_CACHE_DIR}"
 
 # *****************************************************************************
 # Get the files.
@@ -103,7 +103,7 @@ while read pname pad1 fname pad2 url; do
 done <${K_PKGLIST}
 echo "i> Fetched ${_c} packages."
 if [[ ${_c} -eq 0 && -n "${_p}" ]]; then
-	echo -e "${TEXT_BRED}Error${TEXT_NORM}: no package named \"${_p}\""
+	echo -e "E> ${TEXT_BRED}Error${TEXT_NORM}: no package named \"${_p}\""
 fi
 unset _p
 
@@ -112,9 +112,10 @@ unset _p
 # *****************************************************************************
 
 if [[ ${G_NMISSING} != 0 ]]; then
+	echo ""
 	echo "Oops -- missing ${G_NMISSING} packages."
 	echo ""
-	echo -e "${TEXT_BRED}Error${TEXT_NORM}:"
+	echo -e "E> ${TEXT_BRED}Error${TEXT_NORM}:"
 	echo "At least one source package failed to download.  If all source   "
 	echo "packages failed to download then check your Internet access.     "
 	echo "Listed below are the missing source package name(s) and the last "

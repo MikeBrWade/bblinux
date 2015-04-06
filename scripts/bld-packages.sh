@@ -51,9 +51,11 @@ if [[ -n "${unZipper}" ]]; then
 	tar --extract --file="${tarBall}"
 	rm --force "${tarBall}"
 else
-	echo "ERROR ***** ${srcPkg} not recognized." # Make a log file entry.
-	echo -e "${TEXT_BRED}ERROR${TEXT_NORM}"         >&${CONSOLE_FD}
-	echo    "E> Source package ${srcPkg} not found" >&${CONSOLE_FD}
+	echo ";#"                                       # Make a log file entry.
+	echo ";# ERROR ***** ${srcPkg} not recognized." # Make a log file entry.
+	echo ";#"                                       # Make a log file entry.
+	echo -e "E> ${TEXT_BRED}ERROR${TEXT_NORM}"      >&${CONSOLE_FD}
+	echo    "=> Source package ${srcPkg} not found" >&${CONSOLE_FD}
 	exit 1 # Bust out of sub-shell.
 fi
 
@@ -83,7 +85,7 @@ local -i uselines=1   # 1 indicates that lines from the files-list file are bein
 local -i oldUseLine=1 # This makes a stack of one deep for the "uselines" flag.
 local -i retStat=0
 
-echo "***** Making Package File List" # Make a log file entry.
+echo ";# ***** Making Package File List" # Make a log file entry.
 
 rm --force "${BBLINUX_BUILD_DIR}/var/files" # This is the file that will have the explicit list of files names that is generated
 >"${BBLINUX_BUILD_DIR}/var/files"           # by processing the source files-list file.
@@ -96,27 +98,27 @@ while read; do
 	if [[ "${REPLY}" =~ ^if\  ]]; then
 		# ....................................................................................... Interpret the 'if' lines.
 		if [[ ${nestings} == 1 ]]; then
-			echo "E> Cannot nest scripting in files-list file."
-			echo "=> line ${lineNum}: \"${REPLY}\""
+			echo ";# E> Cannot nest scripting in files-list file."
+			echo ";# => line ${lineNum}: \"${REPLY}\""
 			continue
 		fi
 		set ${REPLY}
 		if [[ $# != 4 ]]; then
-			echo "E> IGNORING malformed if-condition in files-list file."
-			echo "=> line ${lineNum}: \"${REPLY}\""
+			echo ";# E> IGNORING malformed if-condition in files-list file."
+			echo ";# => line ${lineNum}: \"${REPLY}\""
 			continue
 		fi
 		oldUseLine=${uselines}
 		eval [[ "\$$2" $3 "$4" ]] && uselines=1 || uselines=0  # interpret the if-condtion
 		nestings=1
-		echo "if \$$2 $3 $4 # -- nestings=${nestings} uselines=${uselines}"
+		echo ";# if \$$2 $3 $4 # -- nestings=${nestings} uselines=${uselines}"
 		continue
 	fi
 	if [[ "${REPLY}" =~ ^fi ]]; then
 		# ....................................................................................... Interpret the 'fi' lines.
 		uselines=${oldUseLine}
 		nestings=0
-		echo "fi # ------------- nestings=${nestings} uselines=${uselines}"
+		echo ";# fi # ------------- nestings=${nestings} uselines=${uselines}"
 		continue
 	fi
 	if [[ ${uselines} == 1 ]]; then
@@ -124,7 +126,7 @@ while read; do
 		if [[ "${REPLY}" =~ ^\'glob\'\  ]]; then
 			# ................................................................................... Interpret file globs.
 			set ${REPLY}
-			echo "Start 'glob' \"$2\""
+			echo ";# Start 'glob' \"$2\""
 			_p=""
 			for pathname in ${BBLINUX_SYSROOT_DIR}/$2; do
 				if [[ -f ${pathname} ]]; then
@@ -133,11 +135,11 @@ while read; do
 				fi
 			done
 			unset _p
-			echo "End 'glob' \"$2\""
+			echo ";# End 'glob' \"$2\""
 		elif [[ "${REPLY}" =~ ^\'hardlink\'\  ]]; then
 			# ........................................................................... Interpret 'hardlinked' files.
 			set ${REPLY}
-			echo "Start 'hardli' \"$2\" \"$3\""
+			echo ";# Start 'hardli' \"$2\" \"$3\""
 			for pathname in ${BBLINUX_SYSROOT_DIR}/$2; do
 				if [[ ${pathname} -ef ${BBLINUX_SYSROOT_DIR}/$3 ]]; then
 					_p=${pathname#${BBLINUX_SYSROOT_DIR}/}
@@ -145,11 +147,11 @@ while read; do
 				fi
 			done
 			unset _p
-			echo "End 'hardli' \"$2\" \"$3\""
+			echo ";# End 'hardli' \"$2\" \"$3\""
 		elif [[ "${REPLY}" =~ ^\'symlink\'\  ]]; then
 			# ............................................................................ Interpret 'symlinked' files.
 			set ${REPLY}
-			echo "Start 'synlink' \"$2\" \"$3\""
+			echo ";# Start 'synlink' \"$2\" \"$3\""
 			for pathname in ${BBLINUX_SYSROOT_DIR}/$2; do
 				if [[ -h ${pathname} && "$(readlink ${pathname})" == "$3" ]]; then
 					_p=${pathname#${BBLINUX_SYSROOT_DIR}/}
@@ -157,7 +159,7 @@ while read; do
 				fi
 			done
 			unset _p
-			echo "End 'synlink' \"$2\" \"$3\""
+			echo ";# End 'synlink' \"$2\" \"$3\""
 		else
 			# ................................................................................... Interpret file names.
 			eval "pathname=${REPLY}"
@@ -168,15 +170,17 @@ done <"${cfgPkgFiles}"
 
 while read; do
 	if [[ ! -e ${BBLINUX_SYSROOT_DIR}/${REPLY} ]]; then
-		echo "ERROR ***** sysroot is missing \"${REPLY}\""
-		echo "=> from ${cfgPkgFiles}"
+		echo ";#"
+		echo ";# ERROR ***** sysroot is missing \"${REPLY}\""
+		echo ";# => from ${cfgPkgFiles}"
+		echo ";#"
 		retStat=1
 	fi
 done <"${BBLINUX_BUILD_DIR}/var/files"
 
 if [[ ${retStat} -eq 1 ]]; then
-	echo -e "${TEXT_BRED}ERROR${TEXT_NORM}"         >&${CONSOLE_FD}
-	echo    "E> Something wrong in ${cfgPkgFiles}." >&${CONSOLE_FD}
+	echo -e "E> ${TEXT_BRED}ERROR${TEXT_NORM}"      >&${CONSOLE_FD}
+	echo    "=> Something wrong in ${cfgPkgFiles}." >&${CONSOLE_FD}
 fi
 
 return ${retStat}
@@ -231,9 +235,11 @@ echo -n "b." >&${CONSOLE_FD}
 [[ -z "${PKG_STATUS}" ]] && pkg_clean     $1
 unset NJOBS
 if [[ -n "${PKG_STATUS}" ]]; then
-	echo "ERROR ***** ${PKG_STATUS}" # Make a log file entry.
-	echo -e "${TEXT_BRED}ERROR${TEXT_NORM}" >&${CONSOLE_FD}
-	echo    "E> ${PKG_STATUS}"              >&${CONSOLE_FD}
+	echo ";#"                           # Make a log file entry.
+	echo ";# ERROR ***** ${PKG_STATUS}" # Make a log file entry.
+	echo ";#"                           # Make a log file entry.
+	echo -e "E> ${TEXT_BRED}ERROR${TEXT_NORM}" >&${CONSOLE_FD}
+	echo    "=> ${PKG_STATUS}"                 >&${CONSOLE_FD}
 	rm --force INSTALL_STAMP
 	rm --force FILES
 	exit 1 # Bust out of sub-shell.
@@ -264,36 +270,38 @@ rm --force INSTALL_STAMP # All done with the INSTALL_STAMP file.
 # Strip as possible.
 #
 _x_strip="${XTOOL_BIN_PATH}/${BBLINUX_XTOOL_NAME}-strip"
-echo "***** stripping"
+echo ";#"
+echo ";# stripping"
+echo ";#"
 for f in $(<FILES); do
 	[[ -d "${BBLINUX_SYSROOT_DIR}/${f}" ]] && continue || true
 	if [[ "$(dirname ${f})" == "bin" ]]; then
-		echo "stripping ${f}"
+		echo ";# stripping ${f}"
 		"${_x_strip}" "${BBLINUX_SYSROOT_DIR}/${f}" || true
 	fi
 	if [[ "$(dirname ${f})" == "sbin" ]]; then
-		echo "stripping ${f}"
+		echo ";# stripping ${f}"
 		"${_x_strip}" "${BBLINUX_SYSROOT_DIR}/${f}" || true
 	fi
 	if [[ "$(dirname ${f})" == "usr/bin" ]]; then
-		echo "stripping ${f}"
+		echo ";# stripping ${f}"
 		"${_x_strip}" "${BBLINUX_SYSROOT_DIR}/${f}" || true
 	fi
 	if [[ "$(dirname ${f})" == "usr/sbin" ]]; then
-		echo "stripping ${f}"
+		echo ";# stripping ${f}"
 		"${_x_strip}" "${BBLINUX_SYSROOT_DIR}/${f}" || true
 	fi
 _bname="$(basename ${f})"
 [[ $(expr "${_bname}" : ".*\\(.o\)$" ) == ".o" ]] && continue || true
 [[ $(expr "${_bname}" : ".*\\(.a\)$" ) == ".a" ]] && continue || true
 	if [[ "$(dirname ${f})" == "lib" ]]; then
-		echo "stripping ${f}"
+		echo ";# stripping ${f}"
 		"${_x_strip}" "${BBLINUX_SYSROOT_DIR}/${f}" || true
 	fi
 [[ "${_bname}" == "libgcc_s.so"   ]] && continue || true
 [[ "${_bname}" == "libgcc_s.so.1" ]] && continue || true
 	if [[ "$(dirname ${f})" == "usr/lib" ]]; then
-		echo "stripping ${f}"
+		echo ";# stripping ${f}"
 		"${_x_strip}" "${BBLINUX_SYSROOT_DIR}/${f}" || true
 	fi
 done

@@ -45,9 +45,9 @@ declare -i CLEAN=0
 if [[ $# -gt 0 ]]; then
 	[[ x"$1" == x"all" || x"$1" == x"kernel" ]] && {
 		CLEAN=1
-		echo "=> Removing kernel modules package, if any."
+		echo "i> Removing kernel modules package, if any."
 		rm --force --recursive "${BBLINUX_TARGET_DIR}/kpkgs/"*
-		echo "=> Removing kernel and module tree, if any."
+		echo "i> Removing kernel and module tree, if any."
 		rm --force --recursive "${BBLINUX_TARGET_DIR}/kroot/"*
 		for _file in "${BBLINUX_BUILD_DIR}/log/k."*; do
 			rm --force ${_file}
@@ -63,17 +63,17 @@ fi
 if [[ $# -gt 0 ]]; then
 	[[ x"$1" == x"all" || x"$1" == x"packages" ]] && {
 		CLEAN=1
-		echo "=> Removing the packages:"
-		echo "   -> Removing sysroot contents."
+		echo "i> Removing the packages:"
+		echo "=> Removing sysroot contents."
 		rm --force --recursive "${BBLINUX_SYSROOT_DIR}/"*
-		echo "   -> Removing target/pkgbin/ binary packages."
+		echo "=> Removing target/pkgbin/ binary packages."
 		rm --force --recursive "${BBLINUX_TARGET_DIR}/pkgbin/"*
-		echo "   -> Removing build/log/ build logs."
+		echo "=> Removing build/log/ build logs."
 		for _file in "${BBLINUX_BUILD_DIR}/log/p."*; do
 			rm --force ${_file}
 		done
 		unset _file
-		echo "   -> Removing build/run/done. build flags."
+		echo "=> Removing build/run/done. build flags."
 		rm --force --recursive "${BBLINUX_BUILD_DIR}/run/done."*
 	}
 fi
@@ -85,7 +85,7 @@ fi
 if [[ $# -gt 0 ]]; then
 	[[ x"$1" == x"all" || x"$1" == x"loader" ]] && {
 		CLEAN=1
-		echo "=> Removing target/loader binary packages."
+		echo "i> Removing target/loader binary packages."
 		rm --force --recursive "${BBLINUX_TARGET_DIR}/loader/"*
 		for _file in "${BBLINUX_BUILD_DIR}/log/l."*; do
 			rm --force ${_file}
@@ -100,7 +100,7 @@ fi
 # *****************************************************************************
 
 if [[ ${CLEAN} -eq 1 ]]; then
-	echo "=> Removing file system images."
+	echo "i> Removing file system images."
 	rm --force --recursive "${BBLINUX_TARGET_DIR}/image/"*
 fi
 rm --force --recursive "${BBLINUX_BUILD_DIR}/bld/"*

@@ -99,7 +99,7 @@ getcfg:
 	rm --force bblinux-pkglst.txt;					\
 	cp boards/*/$${list[$${cfg}]} bblinux-config.sh;		\
 	)
-	@chmod 666 bblinux-config.sh
+	@chmod 644 bblinux-config.sh
 	@ls --color -Fl bblinux-config.sh
 
 bblinux-config.sh:
@@ -130,7 +130,7 @@ bblinux-pkglst.txt pkglist:	bblinux-config.sh
 		echo "" >>bblinux-pkglst.txt;				\
 	done;								\
 	)
-	@chmod 666 bblinux-pkglst.txt
+	@chmod 644 bblinux-pkglst.txt
 	@ls --color -Fl bblinux-pkglst.txt
 
 dload:	bblinux-pkglst.txt scripts/utl-dload.sh

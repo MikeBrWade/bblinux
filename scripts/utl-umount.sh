@@ -96,7 +96,7 @@ bbl_dist_config || exit 1
 # *****************************************************************************
 
 if [[ ! -f "${BBLINUX_BUILD_DIR}/run/mount" ]]; then
-	echo "Flag indicates nothing mounted."
+	echo "e> Flag indicates nothing mounted."
 	exit 1
 fi
 

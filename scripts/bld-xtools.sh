@@ -37,8 +37,8 @@ source ./scripts/_functions.sh # bblinux build support
 # *****************************************************************************
 
 if [[ -d "${BBLINUX_XTOOLS_DIR}/${BBLINUX_XTOOL_NAME}" ]]; then
-	echo "${BBLINUX_XTOOL_NAME} cross-tool chain already exists."
-	echo "x-tools/:"
+	echo "E> ${BBLINUX_XTOOL_NAME} cross-tool chain already exists."
+	echo "=> x-tools/:"
 	ls -1F "${BBLINUX_XTOOLS_DIR}"
 	exit 0
 fi
@@ -49,10 +49,10 @@ fi
 
 bbl_get_file ${BBLINUX_XTOOL_FNAME} ${BBLINUX_XTOOL_EXT} ${BBLINUX_XTOOL_URL}
 if [[ ${G_NMISSING} != 0 ]]; then
-	echo -e "${TEXT_BRED}Error${TEXT_NORM}:"
-	echo "Failed to download ${BBLINUX_XTOOL_FNAME}${BBLINUX_XTOOL_EXT}"
-	echo "from ${BBLINUX_XTOOL_URL}"
-	echo "Check the ${BBLINUX_CONFIG} file."
+	echo -e "E> ${TEXT_BRED}Error${TEXT_NORM}:"
+	echo "=> Failed to download ${BBLINUX_XTOOL_FNAME}${BBLINUX_XTOOL_EXT}"
+	echo "   from ${BBLINUX_XTOOL_URL}"
+	echo "=> Check the ${BBLINUX_CONFIG} file."
 	unset G_NMISSING
 	exit 1
 fi
@@ -66,12 +66,12 @@ fi
 
 (
 # Go to the build directory and clean it.
-echo "Cleaning build directory ..."
+echo "i> Cleaning build directory ..."
 cd "${BBLINUX_BUILD_DIR}/bld" || exit 2
 rm --force --recursive *
 
 # Untar the cross-tool package and go into its top-level directory.
-echo "Uncompressing ${BBLINUX_XTOOL_FNAME}${BBLINUX_XTOOL_EXT} ..."
+echo "i> Uncompressing ${BBLINUX_XTOOL_FNAME}${BBLINUX_XTOOL_EXT} ..."
 tar xf "${BBLINUX_DLOAD_DIR}/${BBLINUX_XTOOL_FNAME}${BBLINUX_XTOOL_EXT}"
 cd ${BBLINUX_XTOOL_FNAME}
 
@@ -97,7 +97,7 @@ unset _boarddir
 
 # Cleanup
 cd ..
-echo "Removing ${BBLINUX_XTOOL_FNAME} directory ..."
+echo "i> Removing ${BBLINUX_XTOOL_FNAME} directory ..."
 rm -rf ${BBLINUX_XTOOL_FNAME}
 )
 

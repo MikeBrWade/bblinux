@@ -98,13 +98,13 @@ bbl_dist_config || exit 1
 # *****************************************************************************
 
 if [[ -f "${BBLINUX_BUILD_DIR}/run/mount" ]]; then
-	echo "Flag indicates already mounted. Run 'make ummount'."
+	echo "E> Flag indicates already mounted. Run 'make ummount'."
 	exit 1
 fi
 
 if [[ x"${BBLINUX_ROOTFS_INITRAMFS}" == x"y" ]]; then
 	if [[ ! -f "${BBLINUX_IRD_NAME}.gz" ]]; then
-		echo "Nothing to mount"
+		echo "i> Nothing to mount"
 		exit1
 	fi
 	mount_initramfs
@@ -114,7 +114,7 @@ fi
 
 if [[ x"${BBLINUX_ROOTFS_INITRD}" == x"y" ]]; then
 	if [[ ! -f "${BBLINUX_IMG_NAME}" ]]; then
-		echo "Nothing to mount"
+		echo "i> Nothing to mount"
 		exit1
 	fi
 	mount_initrd
@@ -124,7 +124,7 @@ fi
 
 if [[ x"${BBLINUX_ROOTFS_TARBALL}" == x"y" ]]; then
 	if [[ ! -f "${BBLINUX_TAR_NAME}" ]]; then
-		echo "Nothing to mount"
+		echo "i> Nothing to mount"
 		exit1
 	fi
 	mount_tarball

@@ -137,11 +137,17 @@ echo "i> Installing packages."
 for _p in ${PACKAGE_LIST}; do
 	_b=${_p%-${BBLINUX_CPU}.tbz}
 	echo "=> ${_b}"
-	cp "${BBLINUX_TARGET_DIR}/pkgbin/${_p}" "${_b}.tar.bz2"
-	bunzip2 --force "${_b}.tar.bz2"
-	tar --extract --file="${_b}.tar" --directory=${BBLINUX_MNT_DIR}
-	rm --force "${_b}.tar"
-done; unset _p; unset _b
+	_f="${BBLINUX_TARGET_DIR}/pkgbin/${_p}"
+	tar --extract --file="${_f}" --directory=${BBLINUX_MNT_DIR}
+done; unset _p; unset _b; unset _f
+for _p in ${BBLINUX_TARGET_DIR}/kpkgs/*; do
+	if [[ -f "${_p}" ]]; then
+		_b=${_p##*/}
+		_b=${_b%-${BBLINUX_CPU_ARCH}.tbz}
+		echo "=> ${_b}"
+		tar --extract --file="${_p}" --directory=${BBLINUX_MNT_DIR}
+	fi
+done; unset _p
 popd >/dev/null 2>&1
 
 # *****************************************************************************
@@ -178,7 +184,7 @@ _msg=""
 if [[ -n "${CONFIG_ROOTFS_SIZE_MB:-}" ]]; then
 	_msg=" [file system size=${CONFIG_ROOTFS_SIZE_MB}MB]"
 fi
-echo "File system usage${_msg}:"
+echo "i> File system usage${_msg}:"
 du -sh ${BBLINUX_MNT_DIR}
 unset _msg
 
