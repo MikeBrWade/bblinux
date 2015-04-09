@@ -1,0 +1,4 @@
+# vim: syntax=conf
+sbin/ldconfig
+usr/bin/getconf
+usr/bin/ldd
