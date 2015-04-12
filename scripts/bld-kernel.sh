@@ -152,10 +152,14 @@ fi
 
 cd ${BBLINUX_LINUX_DIR}
 
+# This is for older kernels built with newer GCC; it is harmless it this fails.
+#
+sed -e "s|-Werror-implicit-function-declaration||" -i Makefile || true
+
 # This is for older kernels; it is harmless otherwise.
 #
 if [[ -f scripts/unifdef.c ]]; then
-	sed -e "s/getline/uc_&/" -i scripts/unifdef.c
+	sed -e "s/getline/uc_&/" -i scripts/unifdef.c || true
 fi
 
 # This is for older kernels; it is harmless otherwise.
@@ -163,7 +167,7 @@ fi
 if [[ -f scripts/mod/sumversion.c ]]; then
 	_old="<string.h>"
 	_new="<limits.h>\n#include <string.h>"
-	sed -e "s|${_old}|${_new}|" -i scripts/mod/sumversion.c
+	sed -e "s|${_old}|${_new}|" -i scripts/mod/sumversion.c || true
 	unset _old
 	unset _new
 fi
@@ -223,6 +227,7 @@ bitch=${ncpus:-1}
 # Set the right kernel make target.
 case "${BBLINUX_BOARD}" in
 	keyasic_wifisd) target="zImage"  ;;
+	pc_i486)	target="bzImage" ;;
 	wrtu54g_tm)     target="vmlinux" ;;
 esac
 
@@ -256,8 +261,9 @@ if [[ "${target}" == "uImage" ]]; then
 fi
 source "${BBLINUX_SCRIPTS_DIR}/_xbt_env_set"
 echo ";#"
-echo ";# Making Kernel"
+echo ";# Making Kernel \"${target}\""
 echo ";#"
+njobs=1
 PATH="${_xtraPath}:${XTOOL_BIN_PATH}:${PATH}" make -j ${njobs} ${target} \
 	V=1 \
 	ARCH=${BBLINUX_LINUX_ARCH} \
@@ -309,8 +315,9 @@ mkdir ${BBLINUX_TARGET_DIR}/kroot/lib/modules >/dev/null 2>&1 || true
 _vmlinux="arch/${BBLINUX_LINUX_ARCH}/boot/"
 _dtbfile="(none)"
 case "${BBLINUX_BOARD}" in
-	keyasic_wifisd)	_dtbfile=""; _vmlinux+="Image"  ;;
-	wrtu54g_tm)	_dtbfile=""; _vmlinux="vmlinux" ;;
+	keyasic_wifisd)	_dtbfile=""; _vmlinux+="Image"   ;;
+	pc_i486)	_dtbfile=""; _vmlinux+="bzImage" ;;
+	wrtu54g_tm)	_dtbfile=""; _vmlinux="vmlinux"  ;;
 esac
 
 # Get the kernel, the system map, and the dtb file if needed.
