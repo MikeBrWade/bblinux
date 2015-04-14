@@ -197,6 +197,11 @@ package_xbuild() {
 # Function Arguments:
 #      $1 ... Package name, like "glibc-2.19".
 
+unset pkg_patch
+unset pkg_configure
+unset pkg_make
+unset pkg_install
+unset pkg_clean
 source "${BBLINUX_CONFIG_DIR}/$1/bld.sh"
 
 # Get the source package, if any.  The package_get function will unzip and

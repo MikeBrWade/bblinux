@@ -49,7 +49,7 @@ xbt_path_search() {
 # Setup Constants and Environment
 # *****************************************************************************
 
-SETENV_FILE="./bblinux-setenv.sh"
+SETENV="./bblinux-setenv.sh"
 
 _TB=$'\t'
 _NL=$'\n'
@@ -131,37 +131,38 @@ unset mawkProg
 # Create the bblinux environment setup file.
 # *****************************************************************************
 
-echo "i> Setting up cross build configuration in \"${SETENV_FILE}\"."
+echo "i> Setting up cross build configuration in \"${SETENV}\"."
 
 ncpus=$(grep "^processor" /proc/cpuinfo | wc -l)
 
-rm -f "${SETENV_FILE}"
->"${SETENV_FILE}"
-echo "# vim: syntax=sh"                                       >>"${SETENV_FILE}"
-echo ""                                                       >>"${SETENV_FILE}"
-echo "# bblinux Site Configuration Parameters"                >>"${SETENV_FILE}"
-echo "# Setup on $(date)"                                     >>"${SETENV_FILE}"
-echo ""                                                       >>"${SETENV_FILE}"
-echo "# Directories"                                          >>"${SETENV_FILE}"
-echo "export BBLINUX_CACHE_DIR=\"\${HOME}/Downloads\""        >>"${SETENV_FILE}"
-echo "export BBLINUX_DIR=\"$(pwd)\""                          >>"${SETENV_FILE}"
-echo "export BBLINUX_BOARDS_DIR=\"\${BBLINUX_DIR}/boards\""   >>"${SETENV_FILE}"
-echo "export BBLINUX_BUILD_DIR=\"\${BBLINUX_DIR}/build\""     >>"${SETENV_FILE}"
-echo "export BBLINUX_CONFIG_DIR=\"\${BBLINUX_DIR}/config\""   >>"${SETENV_FILE}"
-echo "export BBLINUX_DLOAD_DIR=\"\${BBLINUX_DIR}/dload\""     >>"${SETENV_FILE}"
-echo "export BBLINUX_DOC_DIR=\"\${BBLINUX_DIR}/doc\""         >>"${SETENV_FILE}"
-echo "export BBLINUX_MNT_DIR=\"\${BBLINUX_DIR}/mnt\""         >>"${SETENV_FILE}"
-echo "export BBLINUX_SCRIPTS_DIR=\"\${BBLINUX_DIR}/scripts\"" >>"${SETENV_FILE}"
-echo "export BBLINUX_SYSROOT_DIR=\"\${BBLINUX_DIR}/sysroot\"" >>"${SETENV_FILE}"
-echo "export BBLINUX_TARGET_DIR=\"\${BBLINUX_DIR}/target\""   >>"${SETENV_FILE}"
-echo "export BBLINUX_XTOOLS_DIR=\"\${BBLINUX_DIR}/x-tools\""  >>"${SETENV_FILE}"
-echo ""                                                       >>"${SETENV_FILE}"
-echo "# Build Variables"                                      >>"${SETENV_FILE}"
-echo "export BBLINUX_BUILD=\"${MACHTYPE}\""                   >>"${SETENV_FILE}"
-echo "export BBLINUX_HOST=\"${MACHTYPE}\""                    >>"${SETENV_FILE}"
-echo "export ncpus=${ncpus}"                                  >>"${SETENV_FILE}"
-echo ""                                                       >>"${SETENV_FILE}"
-echo "# end of file"                                          >>"${SETENV_FILE}"
+rm -f "${SETENV}"
+>"${SETENV}"
+echo "# vim: syntax=sh"                                         >>"${SETENV}"
+echo ""                                                         >>"${SETENV}"
+echo "# bblinux Site Configuration Parameters"                  >>"${SETENV}"
+echo "# Setup on $(date)"                                       >>"${SETENV}"
+echo ""                                                         >>"${SETENV}"
+echo "# Directories"                                            >>"${SETENV}"
+echo "export BBLINUX_CACHE_DIR=\"\${HOME}/Downloads\""          >>"${SETENV}"
+echo "export BBLINUX_DIR=\"$(pwd)\""                            >>"${SETENV}"
+echo "export BBLINUX_BOARDS_DIR=\"\${BBLINUX_DIR}/boards\""     >>"${SETENV}"
+echo "export BBLINUX_LOADER_DIR=\"\${BBLINUX_DIR}/bootloader\"" >>"${SETENV}"
+echo "export BBLINUX_BUILD_DIR=\"\${BBLINUX_DIR}/build\""       >>"${SETENV}"
+echo "export BBLINUX_CONFIG_DIR=\"\${BBLINUX_DIR}/config\""     >>"${SETENV}"
+echo "export BBLINUX_DLOAD_DIR=\"\${BBLINUX_DIR}/dload\""       >>"${SETENV}"
+echo "export BBLINUX_DOC_DIR=\"\${BBLINUX_DIR}/doc\""           >>"${SETENV}"
+echo "export BBLINUX_MNT_DIR=\"\${BBLINUX_DIR}/mnt\""           >>"${SETENV}"
+echo "export BBLINUX_SCRIPTS_DIR=\"\${BBLINUX_DIR}/scripts\""   >>"${SETENV}"
+echo "export BBLINUX_SYSROOT_DIR=\"\${BBLINUX_DIR}/sysroot\""   >>"${SETENV}"
+echo "export BBLINUX_TARGET_DIR=\"\${BBLINUX_DIR}/target\""     >>"${SETENV}"
+echo "export BBLINUX_XTOOLS_DIR=\"\${BBLINUX_DIR}/x-tools\""    >>"${SETENV}"
+echo ""                                                         >>"${SETENV}"
+echo "# Build Variables"                                        >>"${SETENV}"
+echo "export BBLINUX_BUILD=\"${MACHTYPE}\""                     >>"${SETENV}"
+echo "export BBLINUX_HOST=\"${MACHTYPE}\""                      >>"${SETENV}"
+echo "export ncpus=${ncpus}"                                    >>"${SETENV}"
+echo ""                                                         >>"${SETENV}"
+echo "# end of file"                                            >>"${SETENV}"
 
 unset ncpus
 
@@ -169,7 +170,7 @@ unset ncpus
 # Exit OK
 # *****************************************************************************
 
-unset SETENV_FILE
+unset SETENV
 echo "Setup all done."
 exit 0
 

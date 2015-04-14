@@ -7,6 +7,7 @@
 bblinux-chroot.sh
 bblinux-config.sh
 bblinux-pkglst.txt
+bblinux-loader.txt
 bblinux-setenv.sh
 
 # bblinux build state

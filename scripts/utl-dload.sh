@@ -75,7 +75,7 @@ bbl_get_file "${pkgName}" "${pkgExt}" $@
 # Set up the shell functions and environment variables.
 # *****************************************************************************
 
-K_PKGLIST="bblinux-pkglst.txt"
+K_PKGLIST="$1"
 
 source ./bblinux-config.sh     # bblinux target build configuration
 source ./bblinux-setenv.sh     # bblinux environment configuration
@@ -93,7 +93,7 @@ echo "=> Local cache directory: ${BBLINUX_CACHE_DIR}"
 # *****************************************************************************
 
 _c=0     # Download count.
-_p=${1-} # See if there is a single package to download.
+_p=${2-} # See if there is a single package to download.
 while read pname pad1 fname pad2 url; do
 	[[ -z "${pname}"                       ]] && continue || true
 	[[ "${pname:0:1}" == "#"               ]] && continue || true
@@ -105,6 +105,7 @@ echo "i> Fetched ${_c} packages."
 if [[ ${_c} -eq 0 && -n "${_p}" ]]; then
 	echo -e "E> ${TEXT_BRED}Error${TEXT_NORM}: no package named \"${_p}\""
 fi
+unset _c
 unset _p
 
 # *****************************************************************************

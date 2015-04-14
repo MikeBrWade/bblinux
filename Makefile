@@ -37,8 +37,8 @@ SHELL=/bin/bash
 # *****************************************************************************
 
 .PHONY: help
-.PHONY: getcfg xtools pkglist dload mount umount
-.PHONY: clean kclean lclean pclean pkgs pkgs_ kernel fsys
+.PHONY: getcfg xtools ldrlist pkglist dload mount umount
+.PHONY: clean kclean lclean pclean pkgs pkgs_ loader kernel fsys
 
 # -----------------------------------------------------------------------------
 # -- Default Target
@@ -49,7 +49,6 @@ help:
 	@echo "Housekeeping Targets:"
 	@echo "getcfg  - get default config file from the config directory"
 	@echo "xtools  - build the cross tool-chain for the selected config"
-	@echo "pkglist - make list of source packages using default config"
 	@echo "dload   - download source packages"
 	@echo "mount   - mount the bblinux file system image, if found"
 	@echo "umount  - unmount the bblinux file system image, if mounted"
@@ -61,6 +60,7 @@ help:
 	@echo "pclean - remove the bblinux packages build"
 	@echo "pkgs   - build the bblinux packages"
 	@echo "pkgs_  - continue more building of the bblinux packages"
+	@echo "loader - build the target loader; do this before building kernel"
 	@echo "kernel - build the bblinux target kernel"
 	@echo "fsys   - create the root file system image"
 	@echo "PACKAGE=name name - Use this to build a single package:"
@@ -110,6 +110,27 @@ bblinux-config.sh:
 xtools:	bblinux-config.sh scripts/bld-xtools.sh
 	@(scripts/bld-xtools.sh)
 
+bblinux-loader.txt ldrlist:	bblinux-config.sh
+	@echo "Regenerating bblinux-loader.txt:"
+	@(								\
+	. ./bblinux-config.sh;						\
+	rm --force bblinux-loader.txt;					\
+	touch bblinux-loader.txt;					\
+	echo -n "$${BBLINUX_BOOTLOADER} " >>bblinux-loader.txt;		\
+	for ((i=35 ; $${i}>$${#dir} ; i--)); do				\
+		echo -n "." >>bblinux-loader.txt;			\
+	done;								\
+	. bootloader/$${BBLINUX_BOOTLOADER}/bld.sh;			\
+	echo -n " $${PKG_ZIP} " >>bblinux-loader.txt;			\
+	for ((i=35 ; $${i}>$${#PKG_ZIP} ; i--)); do			\
+		echo -n "." >>bblinux-loader.txt;			\
+	done;								\
+	echo -n " $${PKG_URL}" >>bblinux-loader.txt;			\
+	echo "" >>bblinux-loader.txt;					\
+	)
+	@chmod 644 bblinux-loader.txt
+	@ls --color -Fl bblinux-loader.txt
+
 bblinux-pkglst.txt pkglist:	bblinux-config.sh
 	@echo "Regenerating bblinux-pkglst.txt:"
 	@(								\
@@ -117,7 +138,7 @@ bblinux-pkglst.txt pkglist:	bblinux-config.sh
 	rm --force bblinux-pkglst.txt;					\
 	touch bblinux-pkglst.txt;					\
 	for dir in $${BBLINUX_PACKAGE[@]}; do				\
-		echo -n "$${dir} " >> bblinux-pkglst.txt;		\
+		echo -n "$${dir} " >>bblinux-pkglst.txt;		\
 		for ((i=35 ; $${i}>$${#dir} ; i--)); do			\
 			echo -n "." >>bblinux-pkglst.txt;		\
 		done;							\
@@ -133,8 +154,9 @@ bblinux-pkglst.txt pkglist:	bblinux-config.sh
 	@chmod 644 bblinux-pkglst.txt
 	@ls --color -Fl bblinux-pkglst.txt
 
-dload:	bblinux-pkglst.txt scripts/utl-dload.sh
-	@(scripts/utl-dload.sh)
+dload:	bblinux-loader.txt bblinux-pkglst.txt scripts/utl-dload.sh
+	@(scripts/utl-dload.sh bblinux-loader.txt)
+	@(scripts/utl-dload.sh bblinux-pkglst.txt)
 
 mount:	scripts/utl-mount.sh
 	@(scripts/utl-mount.sh)
@@ -166,6 +188,9 @@ pkgs:	bblinux-pkglst.txt scripts/bld-packages.sh
 
 pkgs_:	bblinux-pkglst.txt scripts/bld-packages.sh
 	@(scripts/bld-packages.sh continue)
+
+loader:	scripts/bld-loader.sh
+	@(scripts/bld-loader.sh)
 
 kernel:	scripts/bld-kernel.sh
 	(scripts/bld-kernel.sh)

@@ -461,9 +461,10 @@ echo ""
 
 pushd "${BBLINUX_BUILD_DIR}/bld" >/dev/null 2>&1
 
+t1=${SECONDS}
+
 pname="${BBLINUX_LINUX_DIR}"
 
-t1=${SECONDS}
 _title="${BBLINUX_CPU_ARCH} ${pname} "
 echo -n "${_title}";
 for ((i=(30-${#_title}) ; i > 0 ; i--)); do echo -n "."; done
@@ -499,6 +500,8 @@ mins=$(((${t2}-${t1})/60))
 secs=$(((${t2}-${t1})%60))
 [[ ${#mins} -eq 1 ]] && echo -n " "; echo -n "${mins} minutes "
 [[ ${#secs} -eq 1 ]] && echo -n " "; echo    "${secs} seconds]"
+
+unset pname
 
 popd >/dev/null 2>&1
 
