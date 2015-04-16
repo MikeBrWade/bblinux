@@ -32,6 +32,10 @@ target/kroot/[^.]*
 target/loader/[^.]*
 target/pkgbin/[^.]*
 
+# board-specific constructions
+cdrom/
+sdcard/
+
 # cross-tool chains
 x-tools/[^.]*
 

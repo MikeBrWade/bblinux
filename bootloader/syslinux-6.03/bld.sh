@@ -78,6 +78,11 @@ cp "${PKG_DIR}/bios/com32/elflink/ldlinux/ldlinux.c32" "${_dst}/ldlinux.c32"
 cp "${BBLINUX_BOARDS_DIR}/${BBLINUX_BOARD}/"loader*.msg "${_dst}/"
 cp "${BBLINUX_BOARDS_DIR}/${BBLINUX_BOARD}/"loader*.cfg "${_dst}/"
 
+chmod 644 "${_dst}/"loader*.msg
+chmod 644 "${_dst}/"loader*.cfg
+
+unset _dst
+
 PKG_STATUS=""
 return 0
 

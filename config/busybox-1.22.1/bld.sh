@@ -112,6 +112,9 @@ fi
 
 ln -s sbin/init "${BBLINUX_SYSROOT_DIR}/init"
 
+sed --in-place ${BBLINUX_SYSROOT_DIR}/etc/inittab \
+	--expression="s/@@TTY@@/${BBLINUX_LINUX_CONSOLE_TTY}/"
+
 for f in ${BBLINUX_SYSROOT_DIR}/etc/issue*; do
 	if [[ -f "${f}" ]]; then
 		sedCmd="sed --in-place ${f}"
