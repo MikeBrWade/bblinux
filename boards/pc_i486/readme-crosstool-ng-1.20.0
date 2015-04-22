@@ -1,8 +1,0 @@
-
-# Configure crosstool-ng.
-./bootstrap
-./configure --enable-local
-MAKELEVEL=0 make
-cp ../crosstool-ng.config .config
-./ct-ng menuconfig
-
